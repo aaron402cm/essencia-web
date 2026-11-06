@@ -54,9 +54,9 @@
 
     <!-- VIDEO INTRODUCTORIO (PRELOADER) -->
     <div id="welcome-preloader">
-        <video autoplay muted playsinline id="hero-video">
-            <source src="intro-essencia.mp4" type="video/mp4">
-            Tu navegador no soporta videos HTML5.
+    <video autoplay muted playsinline id="hero-video" class="w-full h-full object-cover">
+        <!-- El navegador elegirá automáticamente según el dispositivo -->
+            <source id="video-source" src="intro-essencia.mp4" type="video/mp4">
         </video>
     </div>
 
@@ -137,22 +137,13 @@
 
     <!-- SCRIPT DE TRANSICIÓN DEL VIDEO -->
     <script>
-        const video = document.getElementById('hero-video');
-        const preloader = document.getElementById('welcome-preloader');
-
-        // Cuando termina el video de intro, se desvanece suavemente
-        video.addEventListener('ended', () => {
-            preloader.classList.add('fade-away');
-            setTimeout(() => { preloader.remove(); }, 1000);
-        });
-
-        // Fallback de seguridad: si el usuario hace clic o el video tarda, se quita a los 8 segundos
-        setTimeout(() => {
-            if (document.body.contains(preloader)) {
-                preloader.classList.add('fade-away');
-                setTimeout(() => { preloader.remove(); }, 1000);
-            }
-        }, 8000);
+    // Detectar si es dispositivo móvil para cambiar al video vertical 9:16
+        const videoSource = document.getElementById('video-source');
+        const heroVideo = document.getElementById('hero-video');
+        if (window.innerWidth < 768) {
+            videoSource.src = 'intro-vertical.mp4';
+            heroVideo.load();
+        }
     </script>
 
     <!-- Supabase & App Script -->

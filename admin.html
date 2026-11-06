@@ -66,7 +66,7 @@
                     <input type="number" step="0.01" id="prod-price" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Precio Anterior / Tachado S/ (Opcional - Genera impacto)</label>
+                    <label class="block text-xs text-gray-400 mb-1">Precio Anterior / Tachado S/ (Opcional)</label>
                     <input type="number" step="0.01" id="prod-old-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 150.00">
                 </div>
                 <div>
@@ -74,7 +74,6 @@
                     <input type="number" id="prod-stock" value="10" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                 </div>
 
-                <!-- CARACTERÍSTICAS OPCIONALES -->
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Tallas Disponibles (Opcional)</label>
                     <input type="text" id="prod-sizes" placeholder="Ej. S, M, L o 38, 39, 40" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
@@ -84,7 +83,6 @@
                     <input type="text" id="prod-colors" placeholder="Ej. Rojo, Negro, Plateado" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                 </div>
 
-                <!-- IMÁGENES -->
                 <div class="md:col-span-2 border-t border-gray-800 pt-4">
                     <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto Principal de Portada (Obligatoria)</label>
                     <input type="file" id="prod-main-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
@@ -92,7 +90,7 @@
                 </div>
                 
                 <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400 mb-1">📸 Fotos Adicionales para la Galería de Detalles (Opcional, puedes seleccionar varias)</label>
+                    <label class="block text-xs text-gray-400 mb-1">📸 Fotos Adicionales para la Galería (Opcional)</label>
                     <input type="file" id="prod-gallery-files" accept="image/*" multiple class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-gray-700 file:text-white file:rounded-lg file:border-0 file:px-3 file:py-1">
                 </div>
 
@@ -134,7 +132,6 @@
             if(tabId === 'inventory-tab') loadAdminProducts();
         }
 
-        // Compresión inteligente de imágenes para celulares y PC
         async function compressImage(file, maxWidth = 900, quality = 0.75) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -164,7 +161,7 @@
 
         async function uploadImage(file) {
             const optimized = await compressImage(file);
-            const fileName = `${Date.now()}-${Math.random().toString(36.substring(2))}-${optimized.name}`;
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}-${optimized.name}`;
             const { error: upErr } = await db.storage.from('product-images').upload(fileName, optimized);
             if (upErr) throw upErr;
             const { data: pubData } = db.storage.from('product-images').getPublicUrl(fileName);
@@ -182,14 +179,12 @@
                 const mainFileInput = document.getElementById('prod-main-file');
                 let mainImageUrl = document.getElementById('prod-existing-main').value;
 
-                // Subir portada si seleccionó una nueva
                 if (mainFileInput.files.length > 0) {
                     mainImageUrl = await uploadImage(mainFileInput.files[0]);
                 } else if (!id && mainFileInput.files.length === 0) {
                     throw new Error('La foto de portada principal es obligatoria.');
                 }
 
-                // Subir galería adicional si seleccionó varias fotos
                 const galleryInput = document.getElementById('prod-gallery-files');
                 let galleryUrls = [];
                 if (galleryInput.files.length > 0) {

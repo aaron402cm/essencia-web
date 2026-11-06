@@ -54,8 +54,7 @@
 
     <!-- VIDEO INTRODUCTORIO (PRELOADER) -->
     <div id="welcome-preloader">
-    <video autoplay muted playsinline id="hero-video" class="w-full h-full object-cover">
-        <!-- El navegador elegirá automáticamente según el dispositivo -->
+        <video autoplay muted playsinline id="hero-video" class="w-full h-full object-cover">
             <source id="video-source" src="intro-essencia.mp4" type="video/mp4">
         </video>
     </div>
@@ -135,15 +134,31 @@
         <p class="text-xs text-gray-600 mt-6">© 2026 - Todos los derechos reservados</p>
     </footer>
 
-    <!-- SCRIPT DE TRANSICIÓN DEL VIDEO -->
+    <!-- SCRIPT INTELIGENTE DE VIDEO + TRANSICIÓN DE SALIDA -->
     <script>
-    // Detectar si es dispositivo móvil para cambiar al video vertical 9:16
         const videoSource = document.getElementById('video-source');
         const heroVideo = document.getElementById('hero-video');
+        const preloader = document.getElementById('welcome-preloader');
+
+        // Seleccionar video vertical en celulares o horizontal en PC
         if (window.innerWidth < 768) {
             videoSource.src = 'intro-vertical.mp4';
             heroVideo.load();
         }
+
+        // Transición suave al terminar el video
+        heroVideo.addEventListener('ended', () => {
+            preloader.classList.add('fade-away');
+            setTimeout(() => { preloader.remove(); }, 1000);
+        });
+
+        // Fallback de seguridad (por si el navegador bloquea el autoplay o demora)
+        setTimeout(() => {
+            if (document.body.contains(preloader)) {
+                preloader.classList.add('fade-away');
+                setTimeout(() => { preloader.remove(); }, 1000);
+            }
+        }, 8000);
     </script>
 
     <!-- Supabase & App Script -->

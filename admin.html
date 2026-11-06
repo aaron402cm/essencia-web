@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Essência Perfumería</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #0b0f19; color: #fdfbf7; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-10">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Encabezado -->
+        <div class="flex justify-between items-center border-b border-gold/20 pb-6 mb-8">
+            <div>
+                <h1 class="text-3xl font-serif text-[#d4af37]">Panel de Control</h1>
+                <p class="text-sm text-gray-400">Essência Perfumería - Gestión de Catálogo</p>
+            </div>
+            <a href="index.html" class="bg-[#131b2e] border border-[#d4af37]/40 text-[#d4af37] px-4 py-2 rounded-xl text-sm hover:bg-[#d4af37]/10 transition">Ver Tienda Web ↗</a>
+        </div>
+
+        <!-- Formulario para Agregar Producto -->
+        <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl mb-10">
+            <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">Agregar Nuevo Producto al Catálogo</h2>
+            <form id="product-form" onsubmit="saveProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Nombre del Producto</label>
+                    <input type="text" id="name" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white focus:border-[#d4af37] outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Marca</label>
+                    <select id="brand" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white focus:border-[#d4af37] outline-none">
+                        <option value="Natura">Natura</option>
+                        <option value="Ésika">Ésika</option>
+                        <option value="L'Bel">L'Bel</option>
+                        <option value="Cyzone">Cyzone</option>
+                        <option value="Yanbal">Yanbal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Categoría</label>
+                    <input type="text" id="category" value="Perfumes" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white focus:border-[#d4af37] outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Precio (S/)</label>
+                    <input type="number" step="0.01" id="price" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white focus:border-[#d4af37] outline-none">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-400 mb-1">Sube la Foto del Producto (Desde tu celular o PC)</label>
+                    <input type="file" id="image-file" accept="image/*" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#d4af37] file:text-black hover:file:bg-[#f3e7c4]">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-400 mb-1">Descripción Breve</label>
+                    <textarea id="description" rows="2" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white focus:border-[#d4af37] outline-none"></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" id="submit-btn" class="w-full bg-[#d4af37] text-black font-semibold py-3 rounded-xl hover:bg-[#f3e7c4] transition shadow-lg">Publicar Producto en la Web</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de Productos Publicados -->
+        <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">Productos Actuales en la Web</h2>
+        <div id="admin-products-list" class="space-y-3">
+            <p class="text-gray-400 text-center py-6">Cargando inventario...</p>
+        </div>
+    </div>
+
+    <!-- Supabase y Script de Admin -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script>
+        const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+        async function loadAdminProducts() {
+            const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('admin-products-list');
+            
+            if (error || !data.length) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-6">No hay productos registrados todavía.</p>';
+                return;
+            }
+
+            container.innerHTML = data.map(p => `
+                <div class="flex items-center justify-between bg-[#131b2e] border border-gray-800 p-4 rounded-xl">
+                    <div class="flex items-center space-x-4">
+                        <img src="${p.image_url}" class="w-12 h-12 object-cover rounded-lg border border-[#d4af37]/30">
+                        <div>
+                            <h3 class="font-semibold text-white">${p.name}</h3>
+                            <p class="text-xs text-[#d4af37]">${p.brand} • S/ ${p.price}</p>
+                        </div>
+                    </div>
+                    <button onclick="deleteProduct('${p.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs transition">Eliminar</button>
+                </div>
+            `).join('');
+        }
+
+        async function saveProduct(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = 'Subiendo imagen y guardando...';
+            btn.disabled = true;
+
+            const fileInput = document.getElementById('image-file');
+            const file = fileInput.files[0];
+            const fileName = `${Date.now()}-${file.name}`;
+
+            // 1. Subir la imagen al Storage de Supabase
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('product-images')
+                .upload(fileName, file);
+
+            if (uploadError) {
+                alert('Error al subir la imagen: ' + uploadError.message);
+                btn.innerText = 'Publicar Producto en la Web';
+                btn.disabled = false;
+                return;
+            }
+
+            // 2. Obtener la URL pública de la imagen
+            const { data: publicUrlData } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(fileName);
+
+            const imageUrl = publicUrlData.publicUrl;
+
+            // 3. Guardar el producto en la tabla 'products'
+            const { error: insertError } = await supabase.from('products').insert([{
+                name: document.getElementById('name').value,
+                brand: document.getElementById('brand').value,
+                category: document.getElementById('category').value,
+                price: parseFloat(document.getElementById('price').value),
+                image_url: imageUrl,
+                description: document.getElementById('description').value
+            }]);
+
+            if (insertError) {
+                alert('Error al guardar el producto: ' + insertError.message);
+            } else {
+                alert('¡Producto publicado con éxito en la web!');
+                document.getElementById('product-form').reset();
+                loadAdminProducts();
+            }
+
+            btn.innerText = 'Publicar Producto en la Web';
+            btn.disabled = false;
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('¿Estás seguro de eliminar este producto de la tienda?')) {
+                const { error } = await supabase.from('products').delete().eq('id', id);
+                if (error) alert('Error al eliminar');
+                else loadAdminProducts();
+            }
+        }
+
+        loadAdminProducts();
+    </script>
+</body>
+</html>

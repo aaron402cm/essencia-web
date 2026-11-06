@@ -1,4 +1,4 @@
-const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+const db = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
 let products = [];
 let promotions = [];
@@ -14,7 +14,7 @@ async function initStore() {
 
 // 1. Cargar Promociones y Renderizar Carrusel
 async function loadPromotions() {
-    const { data, error } = await supabase.from('promotions').select('*').eq('is_active', true);
+    const { data, error } = await db.from('promotions').select('*').eq('is_active', true);
     if (!error && data) {
         promotions = data;
         renderSlider();
@@ -76,7 +76,7 @@ setInterval(() => {
 
 // 2. Cargar Productos
 async function loadProducts() {
-    const { data, error } = await supabase.from('products').select('*').eq('is_active', true);
+    const { data, error } = await db.from('products').select('*').eq('is_active', true);
     if (!error && data) {
         products = data;
         renderProducts(products);

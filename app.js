@@ -1,12 +1,9 @@
 // CONFIGURACIÓN SEGURA DE SUPABASE (Credenciales públicas anónimas)
-const SUPABASE_URL = 'TU_URL_DE_SUPABASE';
-const SUPABASE_ANON_KEY = 'TU_ANON_KEY_DE_SUPABASE';
-
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
 let products = [];
 let cart = [];
-let currentBrand = 'TODAS';
+let currentBrand = 'TODAS';    
 
 // Cargar productos al iniciar la página
 async function loadProducts() {

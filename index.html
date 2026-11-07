@@ -61,7 +61,7 @@
         </div>
     </header>
 
-    <!-- CARRUSEL DE TARJETAS DE OFERTA -->
+    <!-- CARRUSEL -->
     <section class="relative max-w-7xl mx-auto px-4 py-8 w-full">
         <div class="flex justify-between items-center mb-4 px-2">
             <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Promociones Exclusivas</h2>
@@ -75,7 +75,7 @@
         </div>
     </section>
 
-    <!-- BANNERS INFORMATIVOS -->
+    <!-- BANNERS -->
     <section id="banners-container" class="max-w-7xl mx-auto px-4 py-4 w-full grid grid-cols-1 md:grid-cols-2 gap-6"></section>
 
     <!-- CATÁLOGO -->
@@ -97,7 +97,7 @@
         </div>
     </main>
 
-    <!-- MODAL GENERAL -->
+    <!-- MODAL -->
     <div id="product-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center transition">✕</button>
@@ -184,6 +184,25 @@
         }
 
         function openPromoModal(p) {
+            let discountHtml = '';
+            let priceHtml = '';
+
+            if (p.new_price && p.new_price > 0) {
+                let discountBadge = '';
+                if (p.old_price && p.old_price > p.new_price) {
+                    const diff = p.old_price - p.new_price;
+                    const percent = Math.round((diff / p.old_price) * 100);
+                    discountBadge = `<span class="bg-red-600 text-white text-xs px-2.5 py-1 rounded-full font-bold ml-2">-${percent}% OFF</span>`;
+                }
+                priceHtml = `
+                    <div class="flex items-baseline space-x-3 my-2">
+                        <span class="text-2xl font-bold text-black">S/ ${Number(p.new_price).toFixed(2)}</span>
+                        ${p.old_price ? `<span class="text-gray-400 line-through text-lg">S/ ${Number(p.old_price).toFixed(2)}</span>` : ''}
+                        ${discountBadge}
+                    </div>
+                `;
+            }
+
             document.getElementById('modal-content').innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="h-80 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center p-4">
@@ -194,9 +213,10 @@
                             <span class="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-bold">OFERTA ESPECIAL</span>
                             <h2 class="text-2xl font-serif font-bold text-gray-900 mt-2">${p.title}</h2>
                             <p class="text-sm font-semibold text-gray-700">${p.subtitle}</p>
+                            ${priceHtml}
                             <p class="text-sm text-gray-600 mt-3 leading-relaxed">${p.description || 'Sin descripción adicional para esta promoción.'}</p>
                         </div>
-                        <button onclick="addPromoToCart('${p.title.replace(/'/g, "\\'")}', '${p.subtitle.replace(/'/g, "\\'")}', '${p.image_url}')" class="w-full bg-black hover:bg-[#d4af37] text-white hover:text-black font-semibold py-3.5 rounded-2xl transition shadow-lg">
+                        <button onclick="addPromoToCart(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="w-full bg-black hover:bg-[#d4af37] text-white hover:text-black font-semibold py-3.5 rounded-2xl transition shadow-lg">
                             🛒 Agregar al Pedido
                         </button>
                     </div>
@@ -205,13 +225,14 @@
             document.getElementById('product-modal').classList.remove('hidden');
         }
 
-        function addPromoToCart(title, subtitle, imgUrl) {
-            const name = `${title} - ${subtitle}`;
+        function addPromoToCart(p) {
+            const name = `${p.title} - ${p.subtitle}`;
+            const price = p.new_price ? parseFloat(p.new_price) : 0.00;
             const existing = cart.find(item => item.name === name);
             if (existing) {
                 existing.quantity += 1;
             } else {
-                cart.push({ id: 'promo-' + Date.now(), name: name, brand: 'Promoción', price: 0.00, image_url: imgUrl, quantity: 1, isPromo: true });
+                cart.push({ id: 'promo-' + p.id, name: name, brand: 'Promoción', price: price, image_url: p.image_url, quantity: 1, isPromo: true });
             }
             updateCartUI();
             closeModal();
@@ -350,7 +371,7 @@
                     <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
                         <div>
                             <h4 class="text-sm font-semibold text-gray-900">${item.name}</h4>
-                            <p class="text-xs text-[#d4af37]">${item.price > 0 ? 'S/ ' + item.price + ' x ' + item.quantity : 'Promoción Especial'}</p>
+                            <p class="text-xs text-[#d4af37]">S/ ${item.price} x ${item.quantity}</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <button onclick="changeQty('${item.id}', -1)" class="px-2 bg-gray-200 rounded text-black">-</button>
@@ -372,15 +393,14 @@
 
         function checkoutWhatsApp() {
             if (!cart.length) { alert('Agrega al menos un producto a tu pedido.'); return; }
-            const phone = '51923934517'; // Número actualizado de WhatsApp
+            const phone = '51923934517';
             let message = 'Hola *Essência Perfumería*, deseo realizar el siguiente pedido:\n\n';
             let total = 0;
             cart.forEach((item, index) => {
                 const sub = item.price * item.quantity; total += sub;
-                message += `${index + 1}. *${item.name}* - Cant: ${item.quantity} ${item.price > 0 ? '- S/ ' + sub.toFixed(2) : ''}\n`;
+                message += `${index + 1}. *${item.name}* - Cant: ${item.quantity} - S/ ${sub.toFixed(2)}\n`;
             });
-            message += total > 0 ? `\n*Total a pagar: S/ ${total.toFixed(2)}*\n\n` : '\n';
-            message += '¡Quedo a la espera de la confirmación!';
+            message += `\n*Total a pagar: S/ ${total.toFixed(2)}*\n\n¡Quedo a la espera de la confirmación!`;
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
         }
 

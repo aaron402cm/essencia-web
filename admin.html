@@ -31,11 +31,12 @@
             <button onclick="switchTab('banner-tab')" id="btn-banner-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">🎨 Banners Informativos</button>
         </div>
 
-        <!-- VISTA 1: NUEVO PRODUCTO -->
+        <!-- VISTA 1: NUEVO / EDITAR PRODUCTO -->
         <div id="form-tab" class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
             <h2 id="form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">🛍️ Registrar Producto o Artículo</h2>
             <form onsubmit="saveProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="hidden" id="prod-id">
+                
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Nombre del Producto *</label>
                     <input type="text" id="prod-name" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
@@ -51,17 +52,22 @@
                         <option value="General">General / Otro</option>
                     </select>
                 </div>
+
+                <!-- CATEGORÍA CON OPCIÓN DE NUEVA -->
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Categoría *</label>
-                    <select id="prod-cat" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
+                    <select id="prod-cat-select" onchange="checkCategory(this.value)" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                         <option value="Perfumes">Perfumes</option>
                         <option value="Maquillaje">Maquillaje</option>
                         <option value="Cuidado Personal">Cuidado Personal</option>
                         <option value="Ropa">Ropa</option>
                         <option value="Electrodomésticos">Electrodomésticos</option>
                         <option value="Accesorios">Accesorios</option>
+                        <option value="otra">➕ Escribir nueva categoría...</option>
                     </select>
+                    <input type="text" id="prod-cat-custom" placeholder="Escribe la nueva categoría" class="w-full bg-[#0b0f19] border border-[#d4af37] rounded-xl px-4 py-2 text-white outline-none mt-2 hidden">
                 </div>
+
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Precio Actual / Oferta (S/) *</label>
                     <input type="number" step="0.01" id="prod-price" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
@@ -74,11 +80,28 @@
                     <label class="block text-xs text-gray-400 mb-1">Stock Disponible</label>
                     <input type="number" id="prod-stock" value="10" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                 </div>
+
+                <!-- CARACTERÍSTICAS OPCIONALES RESTAURADAS -->
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Tallas / Medidas (Opcional)</label>
+                    <input type="text" id="prod-sizes" placeholder="Ej. S, M, L o Única" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Colores / Material (Opcional)</label>
+                    <input type="text" id="prod-colors" placeholder="Ej. Rojo, Plata / Oro 18k" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
+                </div>
+
+                <!-- IMÁGENES (PORTADA Y GALERÍA) -->
                 <div class="md:col-span-2 border-t border-gray-800 pt-4">
-                    <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto Principal de Portada</label>
+                    <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto Principal de Portada (Obligatoria)</label>
                     <input type="file" id="prod-main-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
                     <input type="hidden" id="prod-existing-main">
                 </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-400 mb-1">📸 Fotos Adicionales para la Galería de Detalles (Opcional, puedes seleccionar varias)</label>
+                    <input type="file" id="prod-gallery-files" accept="image/*" multiple class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-gray-700 file:text-white file:rounded-lg file:border-0 file:px-3 file:py-1">
+                </div>
+
                 <div class="md:col-span-2">
                     <label class="block text-xs text-gray-400 mb-1">Descripción Breve</label>
                     <textarea id="prod-desc" rows="2" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]"></textarea>
@@ -96,7 +119,7 @@
             <div id="admin-products-list" class="space-y-3"><p class="text-gray-400 text-center py-6">Cargando inventario...</p></div>
         </div>
 
-        <!-- VISTA 3: CARRUSEL DE OFERTAS CON PRECIOS Y DESCUENTO -->
+        <!-- VISTA 3: CARRUSEL DE OFERTAS -->
         <div id="promo-tab" class="hidden space-y-6">
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 id="promo-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">📢 Crear / Editar Tarjeta de Oferta</h2>
@@ -107,16 +130,16 @@
                         <input type="text" id="promo-title" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Subtítulo (Ej. The Most Wanted 50 ml)</label>
+                        <label class="block text-xs text-gray-400 mb-1">Subtítulo (Ej. Aretes Kate Flor Perla)</label>
                         <input type="text" id="promo-subtitle" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Precio Actual / Oferta (S/)</label>
-                        <input type="number" step="0.01" id="promo-new-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 120.00">
+                        <input type="number" step="0.01" id="promo-new-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Precio Anterior / Tachado S/ (Opcional)</label>
-                        <input type="number" step="0.01" id="promo-old-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 240.00">
+                        <input type="number" step="0.01" id="promo-old-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
                         <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto de Portada (En el Carrusel)</label>
@@ -129,8 +152,8 @@
                         <input type="hidden" id="promo-existing-detail-img">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-xs text-gray-400 mb-1">Descripción Completa del Producto / Oferta</label>
-                        <textarea id="promo-desc" rows="3" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Detalles de la promoción..."></textarea>
+                        <label class="block text-xs text-gray-400 mb-1">Descripción Completa</label>
+                        <textarea id="promo-desc" rows="3" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]"></textarea>
                     </div>
                     <div class="md:col-span-2 flex space-x-3 pt-2">
                         <button type="submit" id="btn-promo-save" class="flex-1 bg-[#d4af37] text-black font-semibold py-3 rounded-xl hover:bg-[#f3e7c4] transition">Guardar Tarjeta de Oferta</button>
@@ -202,6 +225,19 @@
             if(tabId === 'banner-tab') loadAdminBanners();
         }
 
+        function checkCategory(val) {
+            const customInput = document.getElementById('prod-cat-custom');
+            if (val === 'otra') {
+                customInput.classList.remove('hidden');
+                customInput.required = true;
+                customInput.focus();
+            } else {
+                customInput.classList.add('hidden');
+                customInput.required = false;
+                customInput.value = '';
+            }
+        }
+
         async function compressImage(file, maxWidth = 900, quality = 0.75) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -222,10 +258,11 @@
             });
         }
 
+        // GUARDAR PRODUCTOS (CON SOPORTE DE GALERÍA Y NUEVA CATEGORÍA)
         async function saveProduct(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-save');
-            btn.innerText = 'Guardando...'; btn.disabled = true;
+            btn.innerText = 'Guardando imágenes...'; btn.disabled = true;
             try {
                 const id = document.getElementById('prod-id').value;
                 const fileInput = document.getElementById('prod-main-file');
@@ -239,16 +276,41 @@
                     imageUrl = data.publicUrl;
                 } else if (!id) { throw new Error('La foto de portada principal es obligatoria.'); }
 
+                // Galería de fotos adicionales
+                const galleryInput = document.getElementById('prod-gallery-files');
+                let galleryUrls = [];
+                if (galleryInput.files.length > 0) {
+                    for (let file of galleryInput.files) {
+                        const optimizedGal = await compressImage(file);
+                        const galName = `gal-${Date.now()}-${optimizedGal.name}`;
+                        await db.storage.from('product-images').upload(galName, optimizedGal);
+                        const { data: galData } = db.storage.from('product-images').getPublicUrl(galName);
+                        galleryUrls.push(galData.publicUrl);
+                    }
+                }
+
+                // Obtener categoría (si seleccionó "otra", lee el input personalizado)
+                let categoryVal = document.getElementById('prod-cat-select').value;
+                if (categoryVal === 'otra') {
+                    categoryVal = document.getElementById('prod-cat-custom').value.trim();
+                }
+
                 const productData = {
                     name: document.getElementById('prod-name').value,
                     brand: document.getElementById('prod-brand').value,
-                    category: document.getElementById('prod-cat').value,
+                    category: categoryVal,
                     price: parseFloat(document.getElementById('prod-price').value),
                     old_price: document.getElementById('prod-old-price').value ? parseFloat(document.getElementById('prod-old-price').value) : null,
                     stock: parseInt(document.getElementById('prod-stock').value) || 10,
+                    sizes: document.getElementById('prod-sizes').value || null,
+                    colors: document.getElementById('prod-colors').value || null,
                     image_url: imageUrl,
                     description: document.getElementById('prod-desc').value
                 };
+
+                if (galleryUrls.length > 0) {
+                    productData.gallery_urls = galleryUrls;
+                }
 
                 if (id) await db.from('products').update(productData).eq('id', id);
                 else await db.from('products').insert([productData]);
@@ -269,7 +331,7 @@
                     <div class="flex items-center space-x-4">
                         <img src="${p.image_url}" class="w-14 h-14 object-cover rounded-lg border border-[#d4af37]/30">
                         <div>
-                            <h3 class="font-semibold text-white">${p.name}</h3>
+                            <h3 class="font-semibold text-white">${p.name} <span class="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300 ml-2">${p.category}</span></h3>
                             <p class="text-xs text-gray-400">S/ ${p.price} • Stock: ${p.stock}</p>
                         </div>
                     </div>
@@ -286,10 +348,24 @@
             document.getElementById('prod-id').value = p.id;
             document.getElementById('prod-name').value = p.name;
             document.getElementById('prod-brand').value = p.brand;
-            document.getElementById('prod-cat').value = p.category;
+            
+            // Manejar categoría al editar
+            const catSelect = document.getElementById('prod-cat-select');
+            const optionsValues = Array.from(catSelect.options).map(o => o.value);
+            if (optionsValues.includes(p.category)) {
+                catSelect.value = p.category;
+                checkCategory(p.category);
+            } else {
+                catSelect.value = 'otra';
+                checkCategory('otra');
+                document.getElementById('prod-cat-custom').value = p.category;
+            }
+
             document.getElementById('prod-price').value = p.price;
             document.getElementById('prod-old-price').value = p.old_price || '';
             document.getElementById('prod-stock').value = p.stock || 10;
+            document.getElementById('prod-sizes').value = p.sizes || '';
+            document.getElementById('prod-colors').value = p.colors || '';
             document.getElementById('prod-desc').value = p.description || '';
             document.getElementById('prod-existing-main').value = p.image_url;
             document.getElementById('form-title').innerText = '✏️ Editar: ' + p.name;
@@ -427,7 +503,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function resetForm() { document.querySelector('#form-tab form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); }
+        function resetForm() { document.querySelector('#form-tab form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); document.getElementById('prod-cat-custom').classList.add('hidden'); }
         function resetPromoForm() { document.querySelector('#promo-tab form').reset(); document.getElementById('promo-id').value = ''; document.getElementById('promo-existing-img').value = ''; document.getElementById('promo-existing-detail-img').value = ''; document.getElementById('promo-form-title').innerText = '📢 Crear / Editar Tarjeta de Oferta'; document.getElementById('btn-promo-save').innerText = 'Guardar Tarjeta de Oferta'; document.getElementById('btn-promo-cancel').classList.add('hidden'); }
         function resetBannerForm() { document.querySelector('#banner-tab form').reset(); document.getElementById('banner-id').value = ''; document.getElementById('banner-form-title').innerText = '🎨 Crear / Editar Banner Informativo'; document.getElementById('btn-banner-save').innerText = 'Guardar Banner Informativo'; document.getElementById('btn-banner-cancel').classList.add('hidden'); }
 

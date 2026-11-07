@@ -23,7 +23,7 @@
             <a href="index.html" class="bg-[#131b2e] border border-[#d4af37]/40 text-[#d4af37] px-4 py-2 rounded-xl text-sm hover:bg-[#d4af37]/10 transition">Ver Tienda Web ↗</a>
         </div>
 
-        <!-- PESTAÑAS EN UNA SOLA LÍNEA -->
+        <!-- PESTAÑAS -->
         <div class="flex flex-row gap-2 border-b border-gray-800 pb-4 overflow-x-auto">
             <button onclick="switchTab('form-tab')" id="btn-form-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#d4af37] text-black transition whitespace-nowrap">➕ Nuevo Producto</button>
             <button onclick="switchTab('inventory-tab')" id="btn-inventory-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">📦 Inventario</button>
@@ -31,7 +31,7 @@
             <button onclick="switchTab('banner-tab')" id="btn-banner-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">🎨 Banners Informativos</button>
         </div>
 
-        <!-- VISTA 1: NUEVO / EDITAR PRODUCTO -->
+        <!-- VISTA 1: NUEVO PRODUCTO -->
         <div id="form-tab" class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
             <h2 id="form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">🛍️ Registrar Producto o Artículo</h2>
             <form onsubmit="saveProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -74,22 +74,10 @@
                     <label class="block text-xs text-gray-400 mb-1">Stock Disponible</label>
                     <input type="number" id="prod-stock" value="10" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                 </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Tallas Disponibles (Opcional)</label>
-                    <input type="text" id="prod-sizes" placeholder="Ej. S, M, L" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Colores Disponibles (Opcional)</label>
-                    <input type="text" id="prod-colors" placeholder="Ej. Rojo, Negro" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                </div>
                 <div class="md:col-span-2 border-t border-gray-800 pt-4">
                     <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto Principal de Portada</label>
                     <input type="file" id="prod-main-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
                     <input type="hidden" id="prod-existing-main">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400 mb-1">📸 Fotos Adicionales para la Galería (Opcional)</label>
-                    <input type="file" id="prod-gallery-files" accept="image/*" multiple class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-gray-700 file:text-white file:rounded-lg file:border-0 file:px-3 file:py-1">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs text-gray-400 mb-1">Descripción Breve</label>
@@ -108,7 +96,7 @@
             <div id="admin-products-list" class="space-y-3"><p class="text-gray-400 text-center py-6">Cargando inventario...</p></div>
         </div>
 
-        <!-- VISTA 3: CARRUSEL DE OFERTAS CON FOTO DE DETALLE Y DESCRIPCIÓN -->
+        <!-- VISTA 3: CARRUSEL DE OFERTAS CON PRECIOS Y DESCUENTO -->
         <div id="promo-tab" class="hidden space-y-6">
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 id="promo-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">📢 Crear / Editar Tarjeta de Oferta</h2>
@@ -123,6 +111,14 @@
                         <input type="text" id="promo-subtitle" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
+                        <label class="block text-xs text-gray-400 mb-1">Precio Actual / Oferta (S/)</label>
+                        <input type="number" step="0.01" id="promo-new-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 120.00">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Precio Anterior / Tachado S/ (Opcional)</label>
+                        <input type="number" step="0.01" id="promo-old-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 240.00">
+                    </div>
+                    <div>
                         <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto de Portada (En el Carrusel)</label>
                         <input type="file" id="promo-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
                         <input type="hidden" id="promo-existing-img">
@@ -134,7 +130,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-xs text-gray-400 mb-1">Descripción Completa del Producto / Oferta</label>
-                        <textarea id="promo-desc" rows="3" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Detalles de la promoción, notas olfativas, beneficios..."></textarea>
+                        <textarea id="promo-desc" rows="3" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Detalles de la promoción..."></textarea>
                     </div>
                     <div class="md:col-span-2 flex space-x-3 pt-2">
                         <button type="submit" id="btn-promo-save" class="flex-1 bg-[#d4af37] text-black font-semibold py-3 rounded-xl hover:bg-[#f3e7c4] transition">Guardar Tarjeta de Oferta</button>
@@ -226,7 +222,6 @@
             });
         }
 
-        // 1. PRODUCTOS
         async function saveProduct(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-save');
@@ -251,8 +246,6 @@
                     price: parseFloat(document.getElementById('prod-price').value),
                     old_price: document.getElementById('prod-old-price').value ? parseFloat(document.getElementById('prod-old-price').value) : null,
                     stock: parseInt(document.getElementById('prod-stock').value) || 10,
-                    sizes: document.getElementById('prod-sizes').value || null,
-                    colors: document.getElementById('prod-colors').value || null,
                     image_url: imageUrl,
                     description: document.getElementById('prod-desc').value
                 };
@@ -271,25 +264,21 @@
             const { data } = await db.from('products').select('*').order('created_at', { ascending: false });
             const container = document.getElementById('admin-products-list');
             if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center py-6">Sin productos.</p>'; return; }
-            container.innerHTML = data.map(p => {
-                const fecha = new Date(p.created_at).toLocaleDateString('es-PE', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                return `
-                    <div class="flex items-center justify-between bg-[#0b0f19] border border-gray-800 p-4 rounded-xl">
-                        <div class="flex items-center space-x-4">
-                            <img src="${p.image_url}" class="w-14 h-14 object-cover rounded-lg border border-[#d4af37]/30">
-                            <div>
-                                <h3 class="font-semibold text-white">${p.name}</h3>
-                                <p class="text-xs text-gray-400">S/ ${p.price} • Stock: ${p.stock}</p>
-                                <p class="text-[10px] text-[#d4af37] mt-1">Publicado: ${fecha}</p>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button onclick='editProduct(${JSON.stringify(p)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-xs">Editar</button>
-                            <button onclick="deleteProduct('${p.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs">Eliminar</button>
+            container.innerHTML = data.map(p => `
+                <div class="flex items-center justify-between bg-[#0b0f19] border border-gray-800 p-4 rounded-xl">
+                    <div class="flex items-center space-x-4">
+                        <img src="${p.image_url}" class="w-14 h-14 object-cover rounded-lg border border-[#d4af37]/30">
+                        <div>
+                            <h3 class="font-semibold text-white">${p.name}</h3>
+                            <p class="text-xs text-gray-400">S/ ${p.price} • Stock: ${p.stock}</p>
                         </div>
                     </div>
-                `;
-            }).join('');
+                    <div class="flex space-x-2">
+                        <button onclick='editProduct(${JSON.stringify(p)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-xs">Editar</button>
+                        <button onclick="deleteProduct('${p.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function editProduct(p) {
@@ -301,8 +290,6 @@
             document.getElementById('prod-price').value = p.price;
             document.getElementById('prod-old-price').value = p.old_price || '';
             document.getElementById('prod-stock').value = p.stock || 10;
-            document.getElementById('prod-sizes').value = p.sizes || '';
-            document.getElementById('prod-colors').value = p.colors || '';
             document.getElementById('prod-desc').value = p.description || '';
             document.getElementById('prod-existing-main').value = p.image_url;
             document.getElementById('form-title').innerText = '✏️ Editar: ' + p.name;
@@ -311,7 +298,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 2. CARRUSEL DE OFERTAS CON DESCRIPCIÓN Y FOTO DE DETALLE
         async function savePromo(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-promo-save');
@@ -342,6 +328,8 @@
                 const promoData = {
                     title: document.getElementById('promo-title').value,
                     subtitle: document.getElementById('promo-subtitle').value,
+                    new_price: document.getElementById('promo-new-price').value ? parseFloat(document.getElementById('promo-new-price').value) : null,
+                    old_price: document.getElementById('promo-old-price').value ? parseFloat(document.getElementById('promo-old-price').value) : null,
                     description: document.getElementById('promo-desc').value,
                     image_url: imageUrl,
                     detail_image_url: detailImageUrl || imageUrl
@@ -365,7 +353,10 @@
                 <div class="flex items-center justify-between bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
                     <div class="flex items-center space-x-3">
                         <img src="${b.image_url}" class="w-12 h-12 object-cover rounded-lg">
-                        <div><h4 class="font-bold text-white text-sm">${b.title}</h4><p class="text-xs text-gray-400">${b.subtitle}</p></div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${b.title}</h4>
+                            <p class="text-xs text-gray-400">${b.subtitle} • S/ ${b.new_price || '0'}</p>
+                        </div>
                     </div>
                     <div class="flex space-x-2">
                         <button onclick='editPromo(${JSON.stringify(b)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded text-xs">Editar</button>
@@ -379,6 +370,8 @@
             document.getElementById('promo-id').value = b.id;
             document.getElementById('promo-title').value = b.title;
             document.getElementById('promo-subtitle').value = b.subtitle;
+            document.getElementById('promo-new-price').value = b.new_price || '';
+            document.getElementById('promo-old-price').value = b.old_price || '';
             document.getElementById('promo-desc').value = b.description || '';
             document.getElementById('promo-existing-img').value = b.image_url;
             document.getElementById('promo-existing-detail-img').value = b.detail_image_url || '';
@@ -388,7 +381,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 3. BANNERS INFORMATIVOS
         async function saveBanner(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-banner-save');
@@ -401,13 +393,9 @@
                     subtitle: document.getElementById('banner-subtitle').value,
                     bg_color: document.getElementById('banner-color').value
                 };
-
                 if (id) await db.from('banners').update(bannerData).eq('id', id);
                 else await db.from('banners').insert([bannerData]);
-
-                alert('¡Banner informativo guardado con éxito!');
-                resetBannerForm();
-                loadAdminBanners();
+                alert('¡Banner guardado!'); resetBannerForm(); loadAdminBanners();
             } catch (err) { alert('Error: ' + err.message); }
             btn.innerText = 'Guardar Banner Informativo'; btn.disabled = false;
         }
@@ -415,7 +403,7 @@
         async function loadAdminBanners() {
             const { data } = await db.from('banners').select('*').order('created_at', { ascending: false });
             const container = document.getElementById('admin-banners-list');
-            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay banners informativos.</p>'; return; }
+            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay banners.</p>'; return; }
             container.innerHTML = data.map(b => `
                 <div class="flex items-center justify-between bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
                     <div><h4 class="font-bold text-white">${b.title}</h4><p class="text-xs text-gray-400">${b.subtitle}</p></div>
@@ -439,14 +427,13 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // RESET Y ELIMINACIONES
         function resetForm() { document.querySelector('#form-tab form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); }
         function resetPromoForm() { document.querySelector('#promo-tab form').reset(); document.getElementById('promo-id').value = ''; document.getElementById('promo-existing-img').value = ''; document.getElementById('promo-existing-detail-img').value = ''; document.getElementById('promo-form-title').innerText = '📢 Crear / Editar Tarjeta de Oferta'; document.getElementById('btn-promo-save').innerText = 'Guardar Tarjeta de Oferta'; document.getElementById('btn-promo-cancel').classList.add('hidden'); }
         function resetBannerForm() { document.querySelector('#banner-tab form').reset(); document.getElementById('banner-id').value = ''; document.getElementById('banner-form-title').innerText = '🎨 Crear / Editar Banner Informativo'; document.getElementById('btn-banner-save').innerText = 'Guardar Banner Informativo'; document.getElementById('btn-banner-cancel').classList.add('hidden'); }
 
-        async function deleteProduct(id) { if (confirm('¿Eliminar producto?')) { await db.from('products').delete().eq('id', id); loadAdminProducts(); } }
-        async function deletePromo(id) { if (confirm('¿Eliminar tarjeta del carrusel?')) { await db.from('promotions').delete().eq('id', id); loadAdminPromos(); } }
-        async function deleteBanner(id) { if (confirm('¿Eliminar banner informativo?')) { await db.from('banners').delete().eq('id', id); loadAdminBanners(); } }
+        async function deleteProduct(id) { if (confirm('¿Eliminar?')) { await db.from('products').delete().eq('id', id); loadAdminProducts(); } }
+        async function deletePromo(id) { if (confirm('¿Eliminar?')) { await db.from('promotions').delete().eq('id', id); loadAdminPromos(); } }
+        async function deleteBanner(id) { if (confirm('¿Eliminar?')) { await db.from('banners').delete().eq('id', id); loadAdminBanners(); } }
     </script>
 </body>
 </html>

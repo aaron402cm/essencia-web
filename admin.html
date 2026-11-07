@@ -23,10 +23,10 @@
             <a href="index.html" class="bg-[#131b2e] border border-[#d4af37]/40 text-[#d4af37] px-4 py-2 rounded-xl text-sm hover:bg-[#d4af37]/10 transition">Ver Tienda Web ↗</a>
         </div>
 
-        <!-- PESTAÑAS EN UNA SOLA LÍNEA (FLEX GRID) -->
+        <!-- PESTAÑAS EN UNA SOLA LÍNEA -->
         <div class="flex flex-row gap-2 border-b border-gray-800 pb-4 overflow-x-auto">
             <button onclick="switchTab('form-tab')" id="btn-form-tab" class="px-5 py-2.5 rounded-xl font-semibold bg-[#d4af37] text-black transition whitespace-nowrap">➕ Nuevo Producto</button>
-            <button onclick="switchTab('promo-tab')" id="btn-promo-tab" class="px-5 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">📢 Banners y Ofertas</button>
+            <button onclick="switchTab('promo-tab')" id="btn-promo-tab" class="px-5 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">📢 Banners y Carrusel</button>
             <button onclick="switchTab('inventory-tab')" id="btn-inventory-tab" class="px-5 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">📦 Inventario</button>
         </div>
 
@@ -87,7 +87,7 @@
                     <input type="hidden" id="prod-existing-main">
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400 mb-1">📸 Fotos Adicionales para la Galería (Opcional, varias a la vez)</label>
+                    <label class="block text-xs text-gray-400 mb-1">📸 Fotos Adicionales para la Galería (Opcional)</label>
                     <input type="file" id="prod-gallery-files" accept="image/*" multiple class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-gray-700 file:text-white file:rounded-lg file:border-0 file:px-3 file:py-1">
                 </div>
                 <div class="md:col-span-2">
@@ -101,43 +101,49 @@
             </form>
         </div>
 
-        <!-- VISTA 2: BANNERS -->
+        <!-- VISTA 2: BANNERS Y CARRUSEL -->
         <div id="promo-tab" class="hidden space-y-6">
+            <!-- Creador / Editor de Carrusel -->
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">🎨 Crear Banner Informativo Estilo Sentua</h2>
-                <form onsubmit="saveBanner(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 id="promo-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">📢 Crear / Editar Banner del Carrusel</h2>
+                <form onsubmit="savePromo(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" id="promo-id">
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Etiqueta Superior (Badge)</label>
-                        <input type="text" id="banner-badge" value="ESSÊNCIA CLUB" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
+                        <label class="block text-xs text-gray-400 mb-1">Título (Ej. ¡Cyber Essência!)</label>
+                        <input type="text" id="promo-title" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Color de Fondo</label>
-                        <select id="banner-color" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                            <option value="#131b2e">Azul Medianoche Lujo (#131b2e)</option>
-                            <option value="#1b2a4a">Azul Elegante (#1b2a4a)</option>
-                            <option value="#221e1d">Negro Carbón (#221e1d)</option>
-                        </select>
+                        <label class="block text-xs text-gray-400 mb-1">Subtítulo (Ej. HASTA 60% OFF)</label>
+                        <input type="text" id="promo-subtitle" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Título Principal</label>
-                        <input type="text" id="banner-title" placeholder="Ej. CONOCE NUESTRO CLUB VIP" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
+                        <label class="block text-xs text-gray-400 mb-1">Precio Anterior S/ (Opcional)</label>
+                        <input type="number" step="0.01" id="promo-old" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Subtítulo</label>
-                        <input type="text" id="banner-subtitle" placeholder="Ej. Acumula puntos y beneficios" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
+                        <label class="block text-xs text-gray-400 mb-1">Precio Oferta S/ (Opcional)</label>
+                        <input type="number" step="0.01" id="promo-new" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div class="md:col-span-2">
-                        <button type="submit" class="w-full bg-[#d4af37] text-black font-semibold py-3 rounded-xl hover:bg-[#f3e7c4] transition">Crear y Publicar Banner</button>
+                        <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Imagen del Banner (Se comprimirá automáticamente)</label>
+                        <input type="file" id="promo-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
+                        <input type="hidden" id="promo-existing-img">
+                    </div>
+                    <div class="md:col-span-2 flex space-x-3 pt-2">
+                        <button type="submit" id="btn-promo-save" class="flex-1 bg-[#d4af37] text-black font-semibold py-3 rounded-xl hover:bg-[#f3e7c4] transition">Guardar Banner en Carrusel</button>
+                        <button type="button" id="btn-promo-cancel" onclick="resetPromoForm()" class="hidden bg-gray-700 text-white px-6 py-3 rounded-xl hover:bg-gray-600 transition">Cancelar</button>
                     </div>
                 </form>
             </div>
+
+            <!-- Listado de Banners del Carrusel Activos -->
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">📋 Banners Activos</h2>
-                <div id="admin-banners-list" class="space-y-3"><p class="text-gray-400 text-center">Cargando...</p></div>
+                <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">📋 Banners del Carrusel Actuales</h2>
+                <div id="admin-promos-list" class="space-y-3"><p class="text-gray-400 text-center">Cargando...</p></div>
             </div>
         </div>
 
-        <!-- VISTA 3: INVENTARIO CON BOTÓN EDITAR -->
+        <!-- VISTA 3: INVENTARIO CON FECHA -->
         <div id="inventory-tab" class="hidden bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
             <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">📦 Historial e Inventario Actual</h2>
             <div id="admin-products-list" class="space-y-3"><p class="text-gray-400 text-center py-6">Cargando inventario...</p></div>
@@ -159,7 +165,7 @@
             document.getElementById('btn-' + tabId).className = 'px-5 py-2.5 rounded-xl font-semibold bg-[#d4af37] text-black transition whitespace-nowrap';
 
             if(tabId === 'inventory-tab') loadAdminProducts();
-            if(tabId === 'promo-tab') loadAdminBanners();
+            if(tabId === 'promo-tab') loadAdminPromos();
         }
 
         async function compressImage(file, maxWidth = 900, quality = 0.75) {
@@ -182,6 +188,7 @@
             });
         }
 
+        // GUARDAR O EDITAR PRODUCTOS
         async function saveProduct(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-save');
@@ -199,7 +206,6 @@
                     imageUrl = data.publicUrl;
                 } else if (!id) { throw new Error('La foto de portada principal es obligatoria.'); }
 
-                // Galería adicional
                 const galleryInput = document.getElementById('prod-gallery-files');
                 let galleryUrls = [];
                 if (galleryInput.files.length > 0) {
@@ -236,25 +242,31 @@
             } catch (err) { alert('Error: ' + err.message); btn.innerText = 'Guardar y Publicar en la Web'; btn.disabled = false; }
         }
 
+        // CARGAR INVENTARIO CON FECHA
         async function loadAdminProducts() {
             const { data } = await db.from('products').select('*').order('created_at', { ascending: false });
             const container = document.getElementById('admin-products-list');
             if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center py-6">Sin productos.</p>'; return; }
-            container.innerHTML = data.map(p => `
-                <div class="flex items-center justify-between bg-[#0b0f19] border border-gray-800 p-4 rounded-xl">
-                    <div class="flex items-center space-x-4">
-                        <img src="${p.image_url}" class="w-14 h-14 object-cover rounded-lg border border-[#d4af37]/30">
-                        <div>
-                            <h3 class="font-semibold text-white">${p.name}</h3>
-                            <p class="text-xs text-gray-400">S/ ${p.price} ${p.old_price ? `(Antes S/ ${p.old_price})` : ''} • Stock: ${p.stock}</p>
+            
+            container.innerHTML = data.map(p => {
+                const fecha = new Date(p.created_at).toLocaleDateString('es-PE', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                return `
+                    <div class="flex items-center justify-between bg-[#0b0f19] border border-gray-800 p-4 rounded-xl">
+                        <div class="flex items-center space-x-4">
+                            <img src="${p.image_url}" class="w-14 h-14 object-cover rounded-lg border border-[#d4af37]/30">
+                            <div>
+                                <h3 class="font-semibold text-white">${p.name}</h3>
+                                <p class="text-xs text-gray-400">S/ ${p.price} ${p.old_price ? `(Antes S/ ${p.old_price})` : ''} • Stock: ${p.stock}</p>
+                                <p class="text-[10px] text-[#d4af37] mt-1">Publicado el: ${fecha}</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick='editProduct(${JSON.stringify(p)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500 hover:text-white px-3 py-1.5 rounded-lg text-xs transition">Editar</button>
+                            <button onclick="deleteProduct('${p.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs transition">Eliminar</button>
                         </div>
                     </div>
-                    <div class="flex space-x-2">
-                        <button onclick='editProduct(${JSON.stringify(p)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500 hover:text-white px-3 py-1.5 rounded-lg text-xs transition">Editar</button>
-                        <button onclick="deleteProduct('${p.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs transition">Eliminar</button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function editProduct(p) {
@@ -276,34 +288,88 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        async function saveBanner(e) {
+        // GUARDAR O EDITAR BANNERS DEL CARRUSEL
+        async function savePromo(e) {
             e.preventDefault();
-            const data = {
-                badge: document.getElementById('banner-badge').value,
-                title: document.getElementById('banner-title').value,
-                subtitle: document.getElementById('banner-subtitle').value,
-                bg_color: document.getElementById('banner-color').value
-            };
-            const { error } = await db.from('banners').insert([data]);
-            if (error) alert('Error al crear banner');
-            else { alert('¡Banner creado con éxito!'); e.target.reset(); loadAdminBanners(); }
+            const btn = document.getElementById('btn-promo-save');
+            btn.innerText = 'Guardando banner...'; btn.disabled = true;
+            try {
+                const id = document.getElementById('promo-id').value;
+                const fileInput = document.getElementById('promo-file');
+                let imageUrl = document.getElementById('promo-existing-img').value;
+
+                if (fileInput.files.length > 0) {
+                    const optimized = await compressImage(fileInput.files[0]);
+                    const fileName = `promo-${Date.now()}-${optimized.name}`;
+                    await db.storage.from('product-images').upload(fileName, optimized);
+                    const { data } = db.storage.from('product-images').getPublicUrl(fileName);
+                    imageUrl = data.publicUrl;
+                } else if (!id) { throw new Error('La imagen del banner es obligatoria.'); }
+
+                const promoData = {
+                    title: document.getElementById('promo-title').value,
+                    subtitle: document.getElementById('promo-subtitle').value,
+                    old_price: document.getElementById('promo-old').value ? parseFloat(document.getElementById('promo-old').value) : null,
+                    new_price: document.getElementById('promo-new').value ? parseFloat(document.getElementById('promo-new').value) : null,
+                    image_url: imageUrl
+                };
+
+                if (id) await db.from('promotions').update(promoData).eq('id', id);
+                else await db.from('promotions').insert([promoData]);
+
+                alert('¡Banner de carrusel guardado con éxito!');
+                resetPromoForm();
+                loadAdminPromos();
+            } catch (err) { alert('Error: ' + err.message); btn.innerText = 'Guardar Banner en Carrusel'; btn.disabled = false; }
         }
 
-        async function loadAdminBanners() {
-            const { data } = await db.from('banners').select('*').order('created_at', { ascending: false });
-            const container = document.getElementById('admin-banners-list');
-            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay banners.</p>'; return; }
+        async function loadAdminPromos() {
+            const { data } = await db.from('promotions').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('admin-promos-list');
+            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay banners activos.</p>'; return; }
             container.innerHTML = data.map(b => `
-                <div class="flex justify-between items-center bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
-                    <div><h4 class="font-bold text-white">${b.title}</h4><p class="text-xs text-gray-400">${b.subtitle}</p></div>
-                    <button onclick="deleteBanner('${b.id}')" class="bg-red-500/10 text-red-400 px-3 py-1 rounded text-xs">Eliminar</button>
+                <div class="flex items-center justify-between bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
+                    <div class="flex items-center space-x-3">
+                        <img src="${b.image_url}" class="w-12 h-12 object-cover rounded-lg">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${b.title}</h4>
+                            <p class="text-xs text-gray-400">${b.subtitle}</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick='editPromo(${JSON.stringify(b)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded text-xs">Editar</button>
+                        <button onclick="deletePromo('${b.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded text-xs">Eliminar</button>
+                    </div>
                 </div>
             `).join('');
         }
 
-        async function deleteBanner(id) { await db.from('banners').delete().eq('id', id); loadAdminBanners(); }
+        function editPromo(b) {
+            document.getElementById('promo-id').value = b.id;
+            document.getElementById('promo-title').value = b.title;
+            document.getElementById('promo-subtitle').value = b.subtitle;
+            document.getElementById('promo-old').value = b.old_price || '';
+            document.getElementById('promo-new').value = b.new_price || '';
+            document.getElementById('promo-existing-img').value = b.image_url;
+            document.getElementById('promo-form-title').innerText = '✏️ Editar Banner: ' + b.title;
+            document.getElementById('btn-promo-save').innerText = 'Actualizar Banner';
+            document.getElementById('btn-promo-cancel').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetPromoForm() {
+            document.querySelector('#promo-tab form').reset();
+            document.getElementById('promo-id').value = '';
+            document.getElementById('promo-existing-img').value = '';
+            document.getElementById('promo-form-title').innerText = '📢 Crear / Editar Banner del Carrusel';
+            document.getElementById('btn-promo-save').innerText = 'Guardar Banner en Carrusel';
+            document.getElementById('btn-promo-save').disabled = false;
+            document.getElementById('btn-promo-cancel').classList.add('hidden');
+        }
+
+        async function deletePromo(id) { if (confirm('¿Eliminar banner del carrusel?')) { await db.from('promotions').delete().eq('id', id); loadAdminPromos(); } }
         async function deleteProduct(id) { if (confirm('¿Eliminar producto?')) { await db.from('products').delete().eq('id', id); loadAdminProducts(); } }
-        function resetForm() { document.querySelector('form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); }
+        function resetForm() { document.querySelector('#form-tab form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); }
     </script>
 </body>
 </html>

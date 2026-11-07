@@ -438,19 +438,33 @@
         }
 
         async function saveBanner(e) {
-            e.preventDefault();
-            const id = document.getElementById('banner-id').value;
-            const bannerData = {
-                badge: document.getElementById('banner-badge').value,
-                title: document.getElementById('banner-title').value,
-                subtitle: document.getElementById('banner-subtitle').value,
-                bg_color: document.getElementById('banner-color').value,
-                is_active: document.getElementById('banner-active').checked
-            };
-            if (id) await db.from('banners').update(bannerData).eq('id', id);
-            else await db.from('banners').insert([bannerData]);
-            alert('¡Banner guardado!'); resetBannerForm(); loadAdminBanners();
+    e.preventDefault();
+    const btn = document.getElementById('btn-banner-save');
+    btn.innerText = 'Guardando...'; btn.disabled = true;
+    try {
+        const id = document.getElementById('banner-id').value;
+        const bannerData = {
+            badge: document.getElementById('banner-badge').value,
+            title: document.getElementById('banner-title').value,
+            subtitle: document.getElementById('banner-subtitle').value,
+            bg_color: document.getElementById('banner-color').value,
+            is_active: document.getElementById('banner-active').checked
+        };
+
+        if (id) {
+            await db.from('banners').update(bannerData).eq('id', id);
+        } else {
+            await db.from('banners').insert([bannerData]);
         }
+
+        alert('¡Banner guardado con éxito!');
+        resetBannerForm();
+        loadAdminBanners();
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+    btn.innerText = 'Guardar Banner'; btn.disabled = false;
+}
 
         async function loadAdminBanners() {
             const { data } = await db.from('banners').select('*').order('created_at', { ascending: false });

@@ -76,32 +76,10 @@
                     <label class="block text-xs text-gray-400 mb-1">Stock Disponible</label>
                     <input type="number" id="prod-stock" value="10" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                 </div>
-
-                <!-- ETIQUETA PROFESIONAL DE ESTADO -->
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Etiqueta Profesional (Badge en Tarjeta)</label>
-                    <select id="prod-badge" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                        <option value="">Sin etiqueta</option>
-                        <option value="Más Vendido">Más Vendido</option>
-                        <option value="Últimas Unidades">Últimas Unidades</option>
-                        <option value="Nuevo Ingreso">Nuevo Ingreso</option>
-                        <option value="Edición Limitada">Edición Limitada</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Tallas / Colores (Opcional)</label>
-                    <input type="text" id="prod-sizes" placeholder="Ej. S, M o Rojo" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                </div>
-
                 <div class="md:col-span-2 border-t border-gray-800 pt-4">
                     <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto Principal de Portada</label>
                     <input type="file" id="prod-main-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
                     <input type="hidden" id="prod-existing-main">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400 mb-1">📸 Fotos Adicionales para la Galería (Opcional)</label>
-                    <input type="file" id="prod-gallery-files" accept="image/*" multiple class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-gray-700 file:text-white file:rounded-lg file:border-0 file:px-3 file:py-1">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs text-gray-400 mb-1">Descripción Breve</label>
@@ -120,7 +98,7 @@
             <div id="admin-products-list" class="space-y-3"><p class="text-gray-400 text-center py-6">Cargando inventario...</p></div>
         </div>
 
-        <!-- VISTA 3: CARRUSEL DE OFERTAS -->
+        <!-- VISTA 3: CARRUSEL DE OFERTAS CON PRECIOS -->
         <div id="promo-tab" class="hidden space-y-6">
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 id="promo-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">📢 Crear / Editar Tarjeta de Oferta</h2>
@@ -135,7 +113,15 @@
                         <input type="text" id="promo-subtitle" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
-                        <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto de Portada</label>
+                        <label class="block text-xs text-gray-400 mb-1">Precio Actual / Oferta (S/)</label>
+                        <input type="number" step="0.01" id="promo-new-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 120.00">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Precio Anterior / Tachado S/ (Opcional)</label>
+                        <input type="number" step="0.01" id="promo-old-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 240.00">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto de Portada (Carrusel)</label>
                         <input type="file" id="promo-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
                         <input type="hidden" id="promo-existing-img">
                     </div>
@@ -146,7 +132,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-xs text-gray-400 mb-1">Descripción Completa</label>
-                        <textarea id="promo-desc" rows="2" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]"></textarea>
+                        <textarea id="promo-desc" rows="3" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]"></textarea>
                     </div>
                     <div class="md:col-span-2 flex space-x-3 pt-2">
                         <button type="submit" id="btn-promo-save" class="flex-1 bg-[#d4af37] text-black font-semibold py-3 rounded-xl hover:bg-[#f3e7c4] transition">Guardar Tarjeta de Oferta</button>
@@ -160,9 +146,8 @@
             </div>
         </div>
 
-        <!-- VISTA 4: BANNERS Y BARRA SUPERIOR EDITABLE Y DESACTIVABLE -->
+        <!-- VISTA 4: BANNERS -->
         <div id="banner-tab" class="hidden space-y-6">
-            <!-- 1. BARRA SUPERIOR -->
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">⚡ Configurar Barra de Avisos Superior</h2>
                 <form onsubmit="saveAnnouncement(event)" class="space-y-4">
@@ -172,13 +157,11 @@
                     </div>
                     <div class="flex items-center space-x-3">
                         <input type="checkbox" id="announcement-active" class="w-5 h-5 accent-[#d4af37] rounded">
-                        <label class="text-sm text-white">Mostrar esta barra en la página web</label>
+                        <label class="text-sm text-white">Mostrar barra en movimiento</label>
                     </div>
-                    <button type="submit" class="w-full bg-[#d4af37] text-black font-semibold py-2.5 rounded-xl hover:bg-[#f3e7c4] transition">Actualizar Barra Superior</button>
+                    <button type="submit" class="w-full bg-[#d4af37] text-black font-semibold py-2.5 rounded-xl hover:bg-[#f3e7c4] transition">Actualizar Barra</button>
                 </form>
             </div>
-
-            <!-- 2. BANNERS INFORMATIVOS CON OPCIÓN DE APAGAR -->
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 id="banner-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">🎨 Crear / Editar Banner Informativo</h2>
                 <form onsubmit="saveBanner(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -214,7 +197,7 @@
                 </form>
             </div>
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">📋 Banners Activos / Inactivos</h2>
+                <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">📋 Banners Informativos Activos</h2>
                 <div id="admin-banners-list" class="space-y-3"><p class="text-gray-400 text-center">Cargando...</p></div>
             </div>
         </div>
@@ -282,18 +265,6 @@
                     imageUrl = data.publicUrl;
                 } else if (!id) { throw new Error('La foto de portada principal es obligatoria.'); }
 
-                const galleryInput = document.getElementById('prod-gallery-files');
-                let galleryUrls = [];
-                if (galleryInput.files.length > 0) {
-                    for (let file of galleryInput.files) {
-                        const optimizedGal = await compressImage(file);
-                        const galName = `gal-${Date.now()}-${optimizedGal.name}`;
-                        await db.storage.from('product-images').upload(galName, optimizedGal);
-                        const { data: galData } = db.storage.from('product-images').getPublicUrl(galName);
-                        galleryUrls.push(galData.publicUrl);
-                    }
-                }
-
                 let categoryVal = document.getElementById('prod-cat-select').value;
                 if (categoryVal === 'otra') categoryVal = document.getElementById('prod-cat-custom').value.trim();
 
@@ -304,13 +275,9 @@
                     price: parseFloat(document.getElementById('prod-price').value),
                     old_price: document.getElementById('prod-old-price').value ? parseFloat(document.getElementById('prod-old-price').value) : null,
                     stock: parseInt(document.getElementById('prod-stock').value) || 10,
-                    badge_label: document.getElementById('prod-badge').value || null,
-                    sizes: document.getElementById('prod-sizes').value || null,
                     image_url: imageUrl,
                     description: document.getElementById('prod-desc').value
                 };
-
-                if (galleryUrls.length > 0) productData.gallery_urls = galleryUrls;
 
                 if (id) await db.from('products').update(productData).eq('id', id);
                 else await db.from('products').insert([productData]);
@@ -331,7 +298,7 @@
                     <div class="flex items-center space-x-4">
                         <img src="${p.image_url}" class="w-14 h-14 object-cover rounded-lg border border-[#d4af37]/30">
                         <div>
-                            <h3 class="font-semibold text-white">${p.name} ${p.badge_label ? `<span class="text-[10px] bg-[#d4af37] text-black px-2 py-0.5 rounded font-bold ml-2">${p.badge_label}</span>` : ''}</h3>
+                            <h3 class="font-semibold text-white">${p.name}</h3>
                             <p class="text-xs text-gray-400">S/ ${p.price} • Stock: ${p.stock}</p>
                         </div>
                     </div>
@@ -361,8 +328,6 @@
             document.getElementById('prod-price').value = p.price;
             document.getElementById('prod-old-price').value = p.old_price || '';
             document.getElementById('prod-stock').value = p.stock || 10;
-            document.getElementById('prod-badge').value = p.badge_label || '';
-            document.getElementById('prod-sizes').value = p.sizes || '';
             document.getElementById('prod-desc').value = p.description || '';
             document.getElementById('prod-existing-main').value = p.image_url;
             document.getElementById('form-title').innerText = '✏️ Editar: ' + p.name;
@@ -371,7 +336,89 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // BARRA SUPERIOR
+        async function savePromo(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-promo-save');
+            btn.innerText = 'Guardando...'; btn.disabled = true;
+            try {
+                const id = document.getElementById('promo-id').value;
+                const fileInput = document.getElementById('promo-file');
+                const detailFileInput = document.getElementById('promo-detail-file');
+                let imageUrl = document.getElementById('promo-existing-img').value;
+                let detailImageUrl = document.getElementById('promo-existing-detail-img').value;
+
+                if (fileInput.files.length > 0) {
+                    const optimized = await compressImage(fileInput.files[0]);
+                    const fileName = `promo-${Date.now()}-${optimized.name}`;
+                    await db.storage.from('product-images').upload(fileName, optimized);
+                    const { data } = db.storage.from('product-images').getPublicUrl(fileName);
+                    imageUrl = data.publicUrl;
+                } else if (!id) { throw new Error('La foto de portada de la oferta es obligatoria.'); }
+
+                if (detailFileInput.files.length > 0) {
+                    const optimizedDetail = await compressImage(detailFileInput.files[0]);
+                    const detailFileName = `promo-det-${Date.now()}-${optimizedDetail.name}`;
+                    await db.storage.from('product-images').upload(detailFileName, optimizedDetail);
+                    const { data: detailData } = db.storage.from('product-images').getPublicUrl(detailFileName);
+                    detailImageUrl = detailData.publicUrl;
+                }
+
+                const promoData = {
+                    title: document.getElementById('promo-title').value,
+                    subtitle: document.getElementById('promo-subtitle').value,
+                    new_price: document.getElementById('promo-new-price').value ? parseFloat(document.getElementById('promo-new-price').value) : null,
+                    old_price: document.getElementById('promo-old-price').value ? parseFloat(document.getElementById('promo-old-price').value) : null,
+                    description: document.getElementById('promo-desc').value,
+                    image_url: imageUrl,
+                    detail_image_url: detailImageUrl || imageUrl
+                };
+
+                if (id) await db.from('promotions').update(promoData).eq('id', id);
+                else await db.from('promotions').insert([promoData]);
+
+                alert('¡Tarjeta de oferta guardada con éxito!');
+                resetPromoForm();
+                loadAdminPromos();
+            } catch (err) { alert('Error: ' + err.message); }
+            btn.innerText = 'Guardar Tarjeta de Oferta'; btn.disabled = false;
+        }
+
+        async function loadAdminPromos() {
+            const { data } = await db.from('promotions').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('admin-promos-list');
+            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay tarjetas activas.</p>'; return; }
+            container.innerHTML = data.map(b => `
+                <div class="flex items-center justify-between bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
+                    <div class="flex items-center space-x-3">
+                        <img src="${b.image_url}" class="w-12 h-12 object-cover rounded-lg">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${b.title}</h4>
+                            <p class="text-xs text-gray-400">${b.subtitle} • S/ ${b.new_price || '0'}</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick='editPromo(${JSON.stringify(b)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded text-xs">Editar</button>
+                        <button onclick="deletePromo('${b.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded text-xs">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editPromo(b) {
+            document.getElementById('promo-id').value = b.id;
+            document.getElementById('promo-title').value = b.title;
+            document.getElementById('promo-subtitle').value = b.subtitle;
+            document.getElementById('promo-new-price').value = b.new_price || '';
+            document.getElementById('promo-old-price').value = b.old_price || '';
+            document.getElementById('promo-desc').value = b.description || '';
+            document.getElementById('promo-existing-img').value = b.image_url;
+            document.getElementById('promo-existing-detail-img').value = b.detail_image_url || '';
+            document.getElementById('promo-form-title').innerText = '✏️ Editar Tarjeta: ' + b.title;
+            document.getElementById('btn-promo-save').innerText = 'Actualizar Tarjeta';
+            document.getElementById('btn-promo-cancel').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         async function loadAnnouncementConfig() {
             const { data } = await db.from('announcement_bar').select('*').limit(1).single();
             if (data) {
@@ -384,17 +431,12 @@
             e.preventDefault();
             const msg = document.getElementById('announcement-msg').value;
             const active = document.getElementById('announcement-active').checked;
-            
             const { data } = await db.from('announcement_bar').select('id').limit(1).single();
-            if (data) {
-                await db.from('announcement_bar').update({ message: msg, is_active: active }).eq('id', data.id);
-            } else {
-                await db.from('announcement_bar').insert([{ message: msg, is_active: active }]);
-            }
-            alert('¡Barra superior actualizada con éxito!');
+            if (data) await db.from('announcement_bar').update({ message: msg, is_active: active }).eq('id', data.id);
+            else await db.from('announcement_bar').insert([{ message: msg, is_active: active }]);
+            alert('¡Barra superior actualizada!');
         }
 
-        // BANNERS INFORMATIVOS CON CHECKBOX DE APAGAR/ENCENDER
         async function saveBanner(e) {
             e.preventDefault();
             const id = document.getElementById('banner-id').value;
@@ -442,9 +484,11 @@
         }
 
         function resetForm() { document.querySelector('#form-tab form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); document.getElementById('prod-cat-custom').classList.add('hidden'); }
+        function resetPromoForm() { document.querySelector('#promo-tab form').reset(); document.getElementById('promo-id').value = ''; document.getElementById('promo-existing-img').value = ''; document.getElementById('promo-existing-detail-img').value = ''; document.getElementById('promo-form-title').innerText = '📢 Crear / Editar Tarjeta de Oferta'; document.getElementById('btn-promo-save').innerText = 'Guardar Tarjeta de Oferta'; document.getElementById('btn-promo-cancel').classList.add('hidden'); }
         function resetBannerForm() { document.querySelector('#banner-tab form').reset(); document.getElementById('banner-id').value = ''; document.getElementById('banner-form-title').innerText = '🎨 Crear / Editar Banner Informativo'; document.getElementById('btn-banner-save').innerText = 'Guardar Banner Informativo'; document.getElementById('btn-banner-cancel').classList.add('hidden'); }
 
         async function deleteProduct(id) { if (confirm('¿Eliminar?')) { await db.from('products').delete().eq('id', id); loadAdminProducts(); } }
+        async function deletePromo(id) { if (confirm('¿Eliminar?')) { await db.from('promotions').delete().eq('id', id); loadAdminPromos(); } }
         async function deleteBanner(id) { if (confirm('¿Eliminar?')) { await db.from('banners').delete().eq('id', id); loadAdminBanners(); } }
     </script>
 </body>

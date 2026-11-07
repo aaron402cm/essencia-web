@@ -23,7 +23,7 @@
             <a href="index.html" class="bg-[#131b2e] border border-[#d4af37]/40 text-[#d4af37] px-4 py-2 rounded-xl text-sm hover:bg-[#d4af37]/10 transition">Ver Tienda Web ↗</a>
         </div>
 
-        <!-- PESTAÑAS EN UNA SOLA LÍNEA (4 SECCIONES INDEPENDIENTES) -->
+        <!-- PESTAÑAS EN UNA SOLA LÍNEA -->
         <div class="flex flex-row gap-2 border-b border-gray-800 pb-4 overflow-x-auto">
             <button onclick="switchTab('form-tab')" id="btn-form-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#d4af37] text-black transition whitespace-nowrap">➕ Nuevo Producto</button>
             <button onclick="switchTab('inventory-tab')" id="btn-inventory-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">📦 Inventario</button>
@@ -139,7 +139,7 @@
             </div>
         </div>
 
-        <!-- VISTA 4: BANNERS INFORMATIVOS (ESTILO SENTUA) CON EDICIÓN -->
+        <!-- VISTA 4: BANNERS INFORMATIVOS -->
         <div id="banner-tab" class="hidden space-y-6">
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 id="banner-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">🎨 Crear / Editar Banner Informativo</h2>
@@ -253,8 +253,9 @@
 
                 alert('¡Guardado con éxito!');
                 resetForm();
-                switchTab('inventory-tab');
-            } catch (err) { alert('Error: ' + err.message); btn.innerText = 'Guardar y Publicar en la Web'; btn.disabled = false; }
+                loadAdminProducts();
+            } catch (err) { alert('Error: ' + err.message); }
+            btn.innerText = 'Guardar y Publicar en la Web'; btn.disabled = false;
         }
 
         async function loadAdminProducts() {
@@ -301,7 +302,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 2. CARRUSEL DE OFERTAS
+        // 2. CARRUSEL DE OFERTAS (CORREGIDO PARA RESETEAR ID AL GUARDAR)
         async function savePromo(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-promo-save');
@@ -331,7 +332,8 @@
                 alert('¡Tarjeta de oferta guardada con éxito!');
                 resetPromoForm();
                 loadAdminPromos();
-            } catch (err) { alert('Error: ' + err.message); btn.innerText = 'Guardar Tarjeta de Oferta'; btn.disabled = false; }
+            } catch (err) { alert('Error: ' + err.message); }
+            btn.innerText = 'Guardar Tarjeta de Oferta'; btn.disabled = false;
         }
 
         async function loadAdminPromos() {
@@ -363,23 +365,28 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 3. BANNERS INFORMATIVOS (ESTILO SENTUA) CON EDICIÓN
+        // 3. BANNERS INFORMATIVOS (CORREGIDO PARA RESETEAR ID AL GUARDAR)
         async function saveBanner(e) {
             e.preventDefault();
-            const id = document.getElementById('banner-id').value;
-            const data = {
-                badge: document.getElementById('banner-badge').value,
-                title: document.getElementById('banner-title').value,
-                subtitle: document.getElementById('banner-subtitle').value,
-                bg_color: document.getElementById('banner-color').value
-            };
+            const btn = document.getElementById('btn-banner-save');
+            btn.innerText = 'Guardando...'; btn.disabled = true;
+            try {
+                const id = document.getElementById('banner-id').value;
+                const bannerData = {
+                    badge: document.getElementById('banner-badge').value,
+                    title: document.getElementById('banner-title').value,
+                    subtitle: document.getElementById('banner-subtitle').value,
+                    bg_color: document.getElementById('banner-color').value
+                };
 
-            if (id) await db.from('banners').update(data).eq('id', id);
-            else await db.from('banners').insert([data]);
+                if (id) await db.from('banners').update(bannerData).eq('id', id);
+                else await db.from('banners').insert([bannerData]);
 
-            alert('¡Banner informativo guardado con éxito!');
-            resetBannerForm();
-            loadAdminBanners();
+                alert('¡Banner informativo guardado con éxito!');
+                resetBannerForm();
+                loadAdminBanners();
+            } catch (err) { alert('Error: ' + err.message); }
+            btn.innerText = 'Guardar Banner Informativo'; btn.disabled = false;
         }
 
         async function loadAdminBanners() {
@@ -387,7 +394,7 @@
             const container = document.getElementById('admin-banners-list');
             if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay banners informativos.</p>'; return; }
             container.innerHTML = data.map(b => `
-                <div class="flex justify-between items-center bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
+                <div class="flex items-center justify-between bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
                     <div><h4 class="font-bold text-white">${b.title}</h4><p class="text-xs text-gray-400">${b.subtitle}</p></div>
                     <div class="flex space-x-2">
                         <button onclick='editBanner(${JSON.stringify(b)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded text-xs">Editar</button>

@@ -50,7 +50,6 @@
             <span class="text-xs uppercase tracking-widest text-gold-dark border-l border-gray-300 pl-3 hidden sm:inline">Perfumería</span>
         </div>
 
-        <!-- BUSCADOR GLOBAL -->
         <div class="w-full md:w-96 relative">
             <input type="text" id="search-input" oninput="handleSearch(event)" placeholder="¿Qué estás buscando? (Perfume, ropa...)" class="w-full bg-gray-100 border border-gray-300 rounded-full py-2 px-5 text-sm text-black placeholder-gray-500 focus:outline-none focus:border-black transition">
         </div>
@@ -74,10 +73,8 @@
         </div>
     </section>
 
-    <!-- BANNER DE ANUNCIOS PROFESIONALES (ESTILO SENTUA) -->
-    <section id="banners-container" class="max-w-7xl mx-auto px-4 py-4 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Se cargan dinámicamente -->
-    </section>
+    <!-- BANNER DE ANUNCIOS PROFESIONALES -->
+    <section id="banners-container" class="max-w-7xl mx-auto px-4 py-4 w-full grid grid-cols-1 md:grid-cols-2 gap-6"></section>
 
     <!-- FILTRO DE MARCAS Y CATÁLOGO -->
     <main class="max-w-7xl mx-auto px-6 py-8 flex-grow w-full">
@@ -99,6 +96,16 @@
             <div class="col-span-full text-center py-20 text-gray-400">Cargando catálogo...</div>
         </div>
     </main>
+
+    <!-- MODAL DE DETALLES DEL PRODUCTO -->
+    <div id="product-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center transition">✕</button>
+            <div id="modal-content" class="p-6 md:p-8 overflow-y-auto space-y-6">
+                <!-- Contenido dinámico inyectado por JS -->
+            </div>
+        </div>
+    </div>
 
     <!-- CARRITO MODAL -->
     <div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-gray-200 shadow-2xl p-6 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
@@ -129,42 +136,21 @@
         <p class="text-xs text-gray-600 mt-6">© 2026 - Todos los derechos reservados</p>
     </footer>
 
-    <!-- SCRIPT PRINCIPAL Y DE VIDEO -->
+    <!-- SCRIPTS -->
     <script>
         const videoSource = document.getElementById('video-source');
         const heroVideo = document.getElementById('hero-video');
         const preloader = document.getElementById('welcome-preloader');
-
-        if (window.innerWidth < 768) {
-            videoSource.src = 'intro-vertical.mp4';
-            heroVideo.load();
-        }
-
-        heroVideo.addEventListener('ended', () => {
-            preloader.classList.add('fade-away');
-            setTimeout(() => { preloader.remove(); }, 1000);
-        });
-
-        setTimeout(() => {
-            if (document.body.contains(preloader)) {
-                preloader.classList.add('fade-away');
-                setTimeout(() => { preloader.remove(); }, 1000);
-            }
-        }, 8000);
+        if (window.innerWidth < 768) { videoSource.src = 'intro-vertical.mp4'; heroVideo.load(); }
+        heroVideo.addEventListener('ended', () => { preloader.classList.add('fade-away'); setTimeout(() => preloader.remove(), 1000); });
+        setTimeout(() => { if (document.body.contains(preloader)) { preloader.classList.add('fade-away'); setTimeout(() => preloader.remove(), 1000); } }, 8000);
     </script>
 
-    <!-- Supabase & App Script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script>
         const db = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-
-        let products = [];
-        let promotions = [];
-        let banners = [];
-        let currentSlideIndex = 0;
-        let cart = [];
-        let currentBrand = 'TODAS';
+        let products = [], promotions = [], banners = [], currentSlideIndex = 0, cart = [], currentBrand = 'TODAS';
 
         async function initStore() {
             await loadPromotions();
@@ -179,24 +165,16 @@
 
         function renderSlider() {
             const slider = document.getElementById('promo-slider');
-            if (!promotions.length) {
-                slider.innerHTML = `<div class="min-w-full p-12 text-center text-gray-400">Pronto nuevas promociones de impacto.</div>`;
-                return;
-            }
+            if (!promotions.length) { slider.innerHTML = `<div class="min-w-full p-12 text-center text-gray-400">Pronto nuevas promociones.</div>`; return; }
             slider.innerHTML = promotions.map(p => `
                 <div class="min-w-full grid grid-cols-1 md:grid-cols-2 items-center p-8 md:p-12 gap-6 bg-gradient-to-r from-gray-50 to-gray-100">
                     <div class="text-left space-y-3">
                         <span class="bg-black text-white text-xs px-3 py-1 rounded-full uppercase tracking-widest font-semibold">${p.title}</span>
                         <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900">${p.subtitle}</h2>
-                        ${p.new_price ? `
-                            <div class="flex items-baseline space-x-3 mt-2">
-                                <span class="text-2xl font-bold text-red-600">S/ ${Number(p.new_price).toFixed(2)}</span>
-                                ${p.old_price ? `<span class="text-gray-400 line-through text-lg">S/ ${Number(p.old_price).toFixed(2)}</span>` : ''}
-                            </div>
-                        ` : ''}
+                        ${p.new_price ? `<div class="flex items-baseline space-x-3 mt-2"><span class="text-2xl font-bold text-red-600">S/ ${Number(p.new_price).toFixed(2)}</span>${p.old_price ? `<span class="text-gray-400 line-through text-lg">S/ ${Number(p.old_price).toFixed(2)}</span>` : ''}</div>` : ''}
                         <div class="pt-4"><a href="#products-grid" class="inline-block bg-black text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-[#d4af37] hover:text-black transition shadow">${p.link_text || 'VER MÁS'}</a></div>
                     </div>
-                    <div class="flex justify-center"><img src="${p.image_url}" alt="${p.title}" class="max-h-72 object-contain rounded-2xl shadow-sm"></div>
+                    <div class="flex justify-center"><img src="${p.image_url}" class="max-h-72 object-contain rounded-2xl shadow-sm"></div>
                 </div>
             `).join('');
         }
@@ -210,16 +188,12 @@
             const { data } = await db.from('banners').select('*').eq('is_active', true);
             const container = document.getElementById('banners-container');
             if (!data || !data.length) { container.innerHTML = ''; return; }
-
             container.innerHTML = data.map(b => `
                 <div class="rounded-3xl p-6 md:p-8 flex justify-between items-center shadow-md text-white relative overflow-hidden" style="background-color: ${b.bg_color || '#131b2e'}; border: 1px solid rgba(212, 175, 55, 0.3);">
                     <div class="space-y-2 z-10">
                         <span class="text-[10px] tracking-widest uppercase bg-[#d4af37] text-black px-2.5 py-0.5 rounded-full font-bold">${b.badge || 'ESSÊNCIA'}</span>
                         <h3 class="text-xl md:text-2xl font-serif font-bold text-[#f3e7c4]">${b.title}</h3>
                         <p class="text-xs md:text-sm text-gray-300">${b.subtitle}</p>
-                    </div>
-                    <div class="z-10 pl-4">
-                        <a href="#products-grid" class="bg-white text-black hover:bg-[#d4af37] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition shadow">${b.button_text || 'VER MÁS'} ➔</a>
                     </div>
                 </div>
             `).join('');
@@ -232,15 +206,12 @@
 
         function renderProducts(items) {
             const grid = document.getElementById('products-grid');
-            if (!items.length) {
-                grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">No se encontraron productos.</p>';
-                return;
-            }
+            if (!items.length) { grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">No se encontraron productos.</p>'; return; }
             grid.innerHTML = items.map(p => `
                 <div class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl transition group">
-                    <div>
+                    <div onclick="openModal('${p.id}')" class="cursor-pointer">
                         <div class="relative h-52 rounded-xl overflow-hidden mb-4 bg-gray-50">
-                            <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <img src="${p.image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                             <span class="absolute top-2 right-2 bg-white/90 text-black text-xs font-bold px-2.5 py-1 rounded-full shadow">${p.brand}</span>
                         </div>
                         <h3 class="font-serif text-base font-bold text-gray-900 mb-1">${p.name}</h3>
@@ -251,13 +222,65 @@
                             <span class="text-lg font-bold text-black">S/ ${Number(p.price).toFixed(2)}</span>
                             ${p.old_price ? `<span class="text-xs text-gray-400 line-through ml-1">S/ ${p.old_price}</span>` : ''}
                         </div>
-                        <button onclick="addToCart('${p.id}')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-[#d4af37] hover:text-black transition shadow">
-                            Agregar +
-                        </button>
+                        <button onclick="addToCart('${p.id}')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-[#d4af37] hover:text-black transition shadow">Agregar +</button>
                     </div>
                 </div>
             `).join('');
         }
+
+        // MODAL DE DETALLES Y GALERÍA
+        function openModal(id) {
+            const p = products.find(prod => prod.id === id);
+            if (!p) return;
+
+            let galleryHtml = '';
+            if (p.gallery_urls && p.gallery_urls.length > 0) {
+                galleryHtml = `
+                    <div class="mt-4">
+                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Más Fotos del Producto:</p>
+                        <div class="flex gap-2 overflow-x-auto pb-2">
+                            <img src="${p.image_url}" onclick="changeMainImage(this.src)" class="w-16 h-16 object-cover rounded-lg border-2 border-black cursor-pointer flex-shrink-0">
+                            ${p.gallery_urls.map(url => `<img src="${url}" onclick="changeMainImage(this.src)" class="w-16 h-16 object-cover rounded-lg border border-gray-300 hover:border-black cursor-pointer flex-shrink-0">`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modal-content').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="h-80 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100">
+                            <img id="modal-main-img" src="${p.image_url}" class="w-full h-full object-cover">
+                        </div>
+                        ${galleryHtml}
+                    </div>
+                    <div class="flex flex-col justify-between space-y-4">
+                        <div>
+                            <span class="bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full font-bold">${p.brand} • ${p.category}</span>
+                            <h2 class="text-2xl font-serif font-bold text-gray-900 mt-2">${p.name}</h2>
+                            <div class="flex items-baseline space-x-3 my-2">
+                                <span class="text-2xl font-bold text-black">S/ ${Number(p.price).toFixed(2)}</span>
+                                ${p.old_price ? `<span class="text-gray-400 line-through text-lg">S/ ${p.old_price}</span>` : ''}
+                            </div>
+                            <p class="text-sm text-gray-600 mt-3 leading-relaxed">${p.description || 'Sin descripción detallada.'}</p>
+                            
+                            <div class="mt-4 space-y-2 text-xs text-gray-500">
+                                <p>📦 <strong>Stock disponible:</strong> ${p.stock || '10'} unidades</p>
+                                ${p.sizes ? `<p>👕 <strong>Tallas:</strong> ${p.sizes}</p>` : ''}
+                                ${p.colors ? `<p>🎨 <strong>Colores:</strong> ${p.colors}</p>` : ''}
+                            </div>
+                        </div>
+                        <button onclick="addToCart('${p.id}'); closeModal();" class="w-full bg-black hover:bg-[#d4af37] text-white hover:text-black font-semibold py-3.5 rounded-2xl transition shadow-lg">
+                            🛒 Agregar al Pedido
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function changeMainImage(src) { document.getElementById('modal-main-img').src = src; }
+        function closeModal() { document.getElementById('product-modal').classList.add('hidden'); }
 
         function filterByBrand(brand) {
             currentBrand = brand;
@@ -268,22 +291,12 @@
             applyFilters();
         }
 
-        function handleSearch(e) {
-            applyFilters();
-        }
-
+        function handleSearch(e) { applyFilters(); }
         function applyFilters() {
             const query = document.getElementById('search-input').value.toLowerCase();
             let filtered = products;
-
-            if (currentBrand !== 'TODAS') {
-                filtered = filtered.filter(p => p.brand.toLowerCase() === currentBrand.toLowerCase());
-            }
-
-            if (query.trim() !== '') {
-                filtered = filtered.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query) || p.description?.toLowerCase().includes(query));
-            }
-
+            if (currentBrand !== 'TODAS') filtered = filtered.filter(p => p.brand.toLowerCase() === currentBrand.toLowerCase());
+            if (query.trim() !== '') filtered = filtered.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query) || p.description?.toLowerCase().includes(query));
             renderProducts(filtered);
         }
 
@@ -299,15 +312,10 @@
             const count = cart.reduce((acc, item) => acc + item.quantity, 0);
             document.getElementById('cart-count').innerText = count;
             const itemsContainer = document.getElementById('cart-items');
-            if (!cart.length) {
-                itemsContainer.innerHTML = '<p class="text-gray-500 text-sm text-center py-10">Tu carrito está vacío</p>';
-                document.getElementById('cart-total').innerText = 'S/ 0.00';
-                return;
-            }
+            if (!cart.length) { itemsContainer.innerHTML = '<p class="text-gray-500 text-sm text-center py-10">Tu carrito está vacío</p>'; document.getElementById('cart-total').innerText = 'S/ 0.00'; return; }
             let total = 0;
             itemsContainer.innerHTML = cart.map(item => {
-                const sub = item.price * item.quantity;
-                total += sub;
+                const sub = item.price * item.quantity; total += sub;
                 return `
                     <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
                         <div>
@@ -327,11 +335,7 @@
 
         function changeQty(id, delta) {
             const item = cart.find(i => i.id === id);
-            if (item) {
-                item.quantity += delta;
-                if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
-                updateCartUI();
-            }
+            if (item) { item.quantity += delta; if (item.quantity <= 0) cart = cart.filter(i => i.id !== id); updateCartUI(); }
         }
 
         function toggleCart() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
@@ -342,8 +346,7 @@
             let message = 'Hola *Essência Perfumería*, deseo realizar el siguiente pedido:\n\n';
             let total = 0;
             cart.forEach((item, index) => {
-                const sub = item.price * item.quantity;
-                total += sub;
+                const sub = item.price * item.quantity; total += sub;
                 message += `${index + 1}. *${item.name}* (${item.brand}) - Cant: ${item.quantity} - S/ ${sub.toFixed(2)}\n`;
             });
             message += `\n*Total a pagar: S/ ${total.toFixed(2)}*\n\n¡Quedo a la espera de la confirmación!`;

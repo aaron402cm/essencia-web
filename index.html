@@ -24,6 +24,10 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #ffffff; color: #111; overflow-x: hidden; }
         .font-serif { font-family: 'Playfair Display', serif; }
+        
+        /* Ocultar barra de desplazamiento en el carrusel de ofertas pero permitir scroll fluido */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         #welcome-preloader {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #030712;
@@ -62,14 +66,18 @@
         </div>
     </header>
 
-    <!-- CARRUSEL DE PROMOCIONES -->
-    <section class="relative max-w-7xl mx-auto px-4 py-6 w-full">
-        <div class="relative overflow-hidden rounded-3xl bg-gray-100 shadow-md">
-            <div id="promo-slider" class="flex transition-transform duration-500 ease-in-out">
-                <div class="min-w-full p-12 text-center text-gray-400">Cargando promociones exclusivas...</div>
+    <!-- CARRUSEL DE TARJETAS DE PROMOCIONES (ESTILO EJEMPLO) -->
+    <section class="relative max-w-7xl mx-auto px-4 py-8 w-full">
+        <div class="flex justify-between items-center mb-4 px-2">
+            <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Promociones Exclusivas</h2>
+            <div class="flex space-x-2">
+                <button onclick="scrollSlider(-1)" class="bg-gray-100 hover:bg-black hover:text-white text-black p-2.5 rounded-full shadow transition">❮</button>
+                <button onclick="scrollSlider(1)" class="bg-gray-100 hover:bg-black hover:text-white text-black p-2.5 rounded-full shadow transition">❯</button>
             </div>
-            <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow-md transition">❮</button>
-            <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow-md transition">❯</button>
+        </div>
+
+        <div id="promo-cards-container" class="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth px-2 pb-4">
+            <div class="text-gray-400 py-10 text-center w-full">Cargando promociones...</div>
         </div>
     </section>
 
@@ -101,9 +109,7 @@
     <div id="product-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center transition">✕</button>
-            <div id="modal-content" class="p-6 md:p-8 overflow-y-auto space-y-6">
-                <!-- Contenido dinámico inyectado por JS -->
-            </div>
+            <div id="modal-content" class="p-6 md:p-8 overflow-y-auto space-y-6"></div>
         </div>
     </div>
 
@@ -150,7 +156,7 @@
     <script src="config.js"></script>
     <script>
         const db = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-        let products = [], promotions = [], banners = [], currentSlideIndex = 0, cart = [], currentBrand = 'TODAS';
+        let products = [], promotions = [], cart = [], currentBrand = 'TODAS';
 
         async function initStore() {
             await loadPromotions();
@@ -160,29 +166,31 @@
 
         async function loadPromotions() {
             const { data } = await db.from('promotions').select('*').eq('is_active', true);
-            if (data) { promotions = data; renderSlider(); }
-        }
+            const container = document.getElementById('promo-cards-container');
+            if (!data || !data.length) { container.innerHTML = `<div class="text-gray-400 py-10 text-center w-full">Pronto nuevas promociones exclusivas.</div>`; return; }
 
-        function renderSlider() {
-            const slider = document.getElementById('promo-slider');
-            if (!promotions.length) { slider.innerHTML = `<div class="min-w-full p-12 text-center text-gray-400">Pronto nuevas promociones.</div>`; return; }
-            slider.innerHTML = promotions.map(p => `
-                <div class="min-w-full grid grid-cols-1 md:grid-cols-2 items-center p-8 md:p-12 gap-6 bg-gradient-to-r from-gray-50 to-gray-100">
-                    <div class="text-left space-y-3">
-                        <span class="bg-black text-white text-xs px-3 py-1 rounded-full uppercase tracking-widest font-semibold">${p.title}</span>
-                        <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900">${p.subtitle}</h2>
-                        ${p.new_price ? `<div class="flex items-baseline space-x-3 mt-2"><span class="text-2xl font-bold text-red-600">S/ ${Number(p.new_price).toFixed(2)}</span>${p.old_price ? `<span class="text-gray-400 line-through text-lg">S/ ${Number(p.old_price).toFixed(2)}</span>` : ''}</div>` : ''}
-                        <div class="pt-4"><a href="#products-grid" class="inline-block bg-black text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-[#d4af37] hover:text-black transition shadow">${p.link_text || 'VER MÁS'}</a></div>
+            container.innerHTML = data.map(p => `
+                <div class="min-w-[260px] md:min-w-[280px] flex-shrink-0 bg-gray-50 rounded-3xl overflow-hidden shadow-md border border-gray-200 flex flex-col justify-between group">
+                    <div class="p-6 text-center space-y-2">
+                        <h3 class="font-serif text-xl font-bold text-gray-900 tracking-tight">${p.title}</h3>
+                        <p class="text-xs text-gray-600 font-medium">${p.subtitle}</p>
                     </div>
-                    <div class="flex justify-center"><img src="${p.image_url}" class="max-h-72 object-contain rounded-2xl shadow-sm"></div>
+                    <div class="h-56 overflow-hidden px-4 flex items-center justify-center bg-white/50">
+                        <img src="${p.image_url}" class="max-h-full object-contain group-hover:scale-105 transition duration-300">
+                    </div>
+                    <div class="mt-4">
+                        <a href="#products-grid" class="block w-full bg-[#d8e2dc] hover:bg-black hover:text-white text-gray-900 text-center py-3 text-xs font-bold uppercase tracking-wider transition">
+                            ${p.link_text || 'VER MÁS'} ▸
+                        </a>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function nextSlide() { if (promotions.length) { currentSlideIndex = (currentSlideIndex + 1) % promotions.length; updateSliderPosition(); } }
-        function prevSlide() { if (promotions.length) { currentSlideIndex = (currentSlideIndex - 1 + promotions.length) % promotions.length; updateSliderPosition(); } }
-        function updateSliderPosition() { document.getElementById('promo-slider').style.transform = `translateX(-${currentSlideIndex * 100}%)`; }
-        setInterval(() => { if (promotions.length > 1) nextSlide(); }, 5000);
+        function scrollSlider(direction) {
+            const container = document.getElementById('promo-cards-container');
+            container.scrollBy({ left: direction * 300, behavior: 'smooth' });
+        }
 
         async function loadBanners() {
             const { data } = await db.from('banners').select('*').eq('is_active', true);
@@ -228,16 +236,14 @@
             `).join('');
         }
 
-        // MODAL DE DETALLES Y GALERÍA
         function openModal(id) {
             const p = products.find(prod => prod.id === id);
             if (!p) return;
-
             let galleryHtml = '';
             if (p.gallery_urls && p.gallery_urls.length > 0) {
                 galleryHtml = `
                     <div class="mt-4">
-                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Más Fotos del Producto:</p>
+                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Más Fotos:</p>
                         <div class="flex gap-2 overflow-x-auto pb-2">
                             <img src="${p.image_url}" onclick="changeMainImage(this.src)" class="w-16 h-16 object-cover rounded-lg border-2 border-black cursor-pointer flex-shrink-0">
                             ${p.gallery_urls.map(url => `<img src="${url}" onclick="changeMainImage(this.src)" class="w-16 h-16 object-cover rounded-lg border border-gray-300 hover:border-black cursor-pointer flex-shrink-0">`).join('')}
@@ -245,7 +251,6 @@
                     </div>
                 `;
             }
-
             document.getElementById('modal-content').innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -263,7 +268,6 @@
                                 ${p.old_price ? `<span class="text-gray-400 line-through text-lg">S/ ${p.old_price}</span>` : ''}
                             </div>
                             <p class="text-sm text-gray-600 mt-3 leading-relaxed">${p.description || 'Sin descripción detallada.'}</p>
-                            
                             <div class="mt-4 space-y-2 text-xs text-gray-500">
                                 <p>📦 <strong>Stock disponible:</strong> ${p.stock || '10'} unidades</p>
                                 ${p.sizes ? `<p>👕 <strong>Tallas:</strong> ${p.sizes}</p>` : ''}

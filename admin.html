@@ -108,24 +108,33 @@
             <div id="admin-products-list" class="space-y-3"><p class="text-gray-400 text-center py-6">Cargando inventario...</p></div>
         </div>
 
-        <!-- VISTA 3: CARRUSEL DE OFERTAS -->
+        <!-- VISTA 3: CARRUSEL DE OFERTAS CON FOTO DE DETALLE Y DESCRIPCIÓN -->
         <div id="promo-tab" class="hidden space-y-6">
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 id="promo-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">📢 Crear / Editar Tarjeta de Oferta</h2>
                 <form onsubmit="savePromo(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="hidden" id="promo-id">
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Título (Ej. HASTA 60% OFF*)</label>
+                        <label class="block text-xs text-gray-400 mb-1">Título (Ej. HASTA 50% OFF)</label>
                         <input type="text" id="promo-title" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Subtítulo (Ej. En fragancias masculinas)</label>
+                        <label class="block text-xs text-gray-400 mb-1">Subtítulo (Ej. The Most Wanted 50 ml)</label>
                         <input type="text" id="promo-subtitle" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto de la Oferta</label>
+                    <div>
+                        <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto de Portada (En el Carrusel)</label>
                         <input type="file" id="promo-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
                         <input type="hidden" id="promo-existing-img">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto Detallada (Al hacer clic en "Ver Más")</label>
+                        <input type="file" id="promo-detail-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
+                        <input type="hidden" id="promo-existing-detail-img">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs text-gray-400 mb-1">Descripción Completa del Producto / Oferta</label>
+                        <textarea id="promo-desc" rows="3" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Detalles de la promoción, notas olfativas, beneficios..."></textarea>
                     </div>
                     <div class="md:col-span-2 flex space-x-3 pt-2">
                         <button type="submit" id="btn-promo-save" class="flex-1 bg-[#d4af37] text-black font-semibold py-3 rounded-xl hover:bg-[#f3e7c4] transition">Guardar Tarjeta de Oferta</button>
@@ -253,7 +262,7 @@
 
                 alert('¡Guardado con éxito!');
                 resetForm();
-                loadAdminProducts();
+                switchTab('inventory-tab');
             } catch (err) { alert('Error: ' + err.message); }
             btn.innerText = 'Guardar y Publicar en la Web'; btn.disabled = false;
         }
@@ -302,7 +311,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 2. CARRUSEL DE OFERTAS (CORREGIDO PARA RESETEAR ID AL GUARDAR)
+        // 2. CARRUSEL DE OFERTAS CON DESCRIPCIÓN Y FOTO DE DETALLE
         async function savePromo(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-promo-save');
@@ -310,7 +319,9 @@
             try {
                 const id = document.getElementById('promo-id').value;
                 const fileInput = document.getElementById('promo-file');
+                const detailFileInput = document.getElementById('promo-detail-file');
                 let imageUrl = document.getElementById('promo-existing-img').value;
+                let detailImageUrl = document.getElementById('promo-existing-detail-img').value;
 
                 if (fileInput.files.length > 0) {
                     const optimized = await compressImage(fileInput.files[0]);
@@ -318,12 +329,22 @@
                     await db.storage.from('product-images').upload(fileName, optimized);
                     const { data } = db.storage.from('product-images').getPublicUrl(fileName);
                     imageUrl = data.publicUrl;
-                } else if (!id) { throw new Error('La imagen de la oferta es obligatoria.'); }
+                } else if (!id) { throw new Error('La foto de portada de la oferta es obligatoria.'); }
+
+                if (detailFileInput.files.length > 0) {
+                    const optimizedDetail = await compressImage(detailFileInput.files[0]);
+                    const detailFileName = `promo-det-${Date.now()}-${optimizedDetail.name}`;
+                    await db.storage.from('product-images').upload(detailFileName, optimizedDetail);
+                    const { data: detailData } = db.storage.from('product-images').getPublicUrl(detailFileName);
+                    detailImageUrl = detailData.publicUrl;
+                }
 
                 const promoData = {
                     title: document.getElementById('promo-title').value,
                     subtitle: document.getElementById('promo-subtitle').value,
-                    image_url: imageUrl
+                    description: document.getElementById('promo-desc').value,
+                    image_url: imageUrl,
+                    detail_image_url: detailImageUrl || imageUrl
                 };
 
                 if (id) await db.from('promotions').update(promoData).eq('id', id);
@@ -358,14 +379,16 @@
             document.getElementById('promo-id').value = b.id;
             document.getElementById('promo-title').value = b.title;
             document.getElementById('promo-subtitle').value = b.subtitle;
+            document.getElementById('promo-desc').value = b.description || '';
             document.getElementById('promo-existing-img').value = b.image_url;
+            document.getElementById('promo-existing-detail-img').value = b.detail_image_url || '';
             document.getElementById('promo-form-title').innerText = '✏️ Editar Tarjeta: ' + b.title;
             document.getElementById('btn-promo-save').innerText = 'Actualizar Tarjeta';
             document.getElementById('btn-promo-cancel').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 3. BANNERS INFORMATIVOS (CORREGIDO PARA RESETEAR ID AL GUARDAR)
+        // 3. BANNERS INFORMATIVOS
         async function saveBanner(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-banner-save');
@@ -418,7 +441,7 @@
 
         // RESET Y ELIMINACIONES
         function resetForm() { document.querySelector('#form-tab form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); }
-        function resetPromoForm() { document.querySelector('#promo-tab form').reset(); document.getElementById('promo-id').value = ''; document.getElementById('promo-existing-img').value = ''; document.getElementById('promo-form-title').innerText = '📢 Crear / Editar Tarjeta de Oferta'; document.getElementById('btn-promo-save').innerText = 'Guardar Tarjeta de Oferta'; document.getElementById('btn-promo-cancel').classList.add('hidden'); }
+        function resetPromoForm() { document.querySelector('#promo-tab form').reset(); document.getElementById('promo-id').value = ''; document.getElementById('promo-existing-img').value = ''; document.getElementById('promo-existing-detail-img').value = ''; document.getElementById('promo-form-title').innerText = '📢 Crear / Editar Tarjeta de Oferta'; document.getElementById('btn-promo-save').innerText = 'Guardar Tarjeta de Oferta'; document.getElementById('btn-promo-cancel').classList.add('hidden'); }
         function resetBannerForm() { document.querySelector('#banner-tab form').reset(); document.getElementById('banner-id').value = ''; document.getElementById('banner-form-title').innerText = '🎨 Crear / Editar Banner Informativo'; document.getElementById('btn-banner-save').innerText = 'Guardar Banner Informativo'; document.getElementById('btn-banner-cancel').classList.add('hidden'); }
 
         async function deleteProduct(id) { if (confirm('¿Eliminar producto?')) { await db.from('products').delete().eq('id', id); loadAdminProducts(); } }

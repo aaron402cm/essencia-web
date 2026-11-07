@@ -26,6 +26,17 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Animación de desplazamiento continuo para la barra superior */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 22s linear infinite;
+        }
+
         #welcome-preloader {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #030712;
             z-index: 99999; display: flex; justify-content: center; align-items: center;
@@ -44,9 +55,9 @@
         </video>
     </div>
 
-    <!-- BARRA DE AVISOS SUPERIOR EDITABLE -->
-    <div id="announcement-bar" class="hidden bg-black text-gold text-xs font-medium py-2 px-4 text-center tracking-wider uppercase">
-        <!-- Texto dinámico desde Supabase -->
+    <!-- BARRA DE AVISOS SUPERIOR CON MOVIMIENTO -->
+    <div id="announcement-wrapper" class="hidden bg-black text-gold text-xs font-semibold py-2.5 overflow-hidden whitespace-nowrap shadow-inner">
+        <div id="announcement-bar" class="animate-marquee"></div>
     </div>
 
     <!-- HEADER -->
@@ -66,7 +77,7 @@
         </div>
     </header>
 
-    <!-- CARRUSEL -->
+    <!-- CARRUSEL DE OFERTAS -->
     <section class="relative max-w-7xl mx-auto px-4 py-8 w-full">
         <div class="flex justify-between items-center mb-4 px-2">
             <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Promociones Exclusivas</h2>
@@ -80,7 +91,7 @@
         </div>
     </section>
 
-    <!-- BANNERS INFORMATIVOS (SI ESTÁN ACTIVOS) -->
+    <!-- BANNERS INFORMATIVOS -->
     <section id="banners-container" class="max-w-7xl mx-auto px-4 py-4 w-full grid grid-cols-1 md:grid-cols-2 gap-6"></section>
 
     <!-- CATÁLOGO -->
@@ -164,17 +175,18 @@
 
         async function loadAnnouncementBar() {
             const { data } = await db.from('announcement_bar').select('*').limit(1).single();
+            const wrapper = document.getElementById('announcement-wrapper');
             const bar = document.getElementById('announcement-bar');
             if (data && data.is_active && data.message) {
-                bar.innerText = data.message;
-                bar.classList.remove('hidden');
+                bar.innerText = data.message + "   •   " + data.message + "   •   " + data.message;
+                wrapper.classList.remove('hidden');
             } else {
-                bar.classList.add('hidden');
+                wrapper.classList.add('hidden');
             }
         }
 
         async function loadPromotions() {
-            const { data } = await db.from('promotions').select('*').eq('is_active', true);
+            const { data } = await db.from('promotions').select('*').order('created_at', { ascending: false });
             const container = document.getElementById('promo-cards-container');
             if (!data || !data.length) { container.innerHTML = `<div class="text-gray-400 py-10 text-center w-full">Pronto nuevas promociones exclusivas.</div>`; return; }
 
@@ -201,9 +213,9 @@
         }
 
         function openPromoModal(p) {
-            let discountBadge = '';
             let priceHtml = '';
             if (p.new_price && p.new_price > 0) {
+                let discountBadge = '';
                 if (p.old_price && p.old_price > p.new_price) {
                     const diff = p.old_price - p.new_price;
                     const percent = Math.round((diff / p.old_price) * 100);
@@ -288,12 +300,7 @@
             const grid = document.getElementById('products-grid');
             if (!items.length) { grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">No se encontraron productos.</p>'; return; }
             grid.innerHTML = items.map(p => {
-                // Etiqueta profesional de estado/stock si existe
-                let badgeHtml = '';
-                if (p.badge_label) {
-                    badgeHtml = `<span class="absolute top-2 left-2 bg-black text-[#d4af37] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow">${p.badge_label}</span>`;
-                }
-
+                let badgeHtml = p.badge_label ? `<span class="absolute top-2 left-2 bg-black text-[#d4af37] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow">${p.badge_label}</span>` : '';
                 return `
                     <div class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl transition group">
                         <div onclick="openModal('${p.id}')" class="cursor-pointer">
@@ -322,7 +329,6 @@
             if (!p) return;
             let allImages = [p.image_url];
             if (p.gallery_urls && p.gallery_urls.length > 0) allImages = allImages.concat(p.gallery_urls);
-
             let thumbnailsHtml = allImages.length > 1 ? `
                 <div class="flex gap-2 overflow-x-auto pb-2 w-full justify-center">
                     ${allImages.map((url, index) => `

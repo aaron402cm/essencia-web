@@ -32,7 +32,7 @@
             <button onclick="switchTab('style-tab')" id="btn-style-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">🎄 Estilos y Festividades</button>
         </div>
 
-        <!-- VISTA 1: NUEVO PRODUCTO -->
+        <!-- VISTA 1: NUEVO PRODUCTO (CON GALERÍA RESTAURADA) -->
         <div id="form-tab" class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
             <h2 id="form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">🛍️ Registrar Producto o Artículo</h2>
             <form onsubmit="saveProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -77,11 +77,18 @@
                     <label class="block text-xs text-gray-400 mb-1">Stock Disponible</label>
                     <input type="number" id="prod-stock" value="10" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                 </div>
+
+                <!-- IMÁGENES (PORTADA + GALERÍA ADICIONAL) -->
                 <div class="md:col-span-2 border-t border-gray-800 pt-4">
-                    <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto Principal de Portada</label>
+                    <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto Principal de Portada (Obligatoria)</label>
                     <input type="file" id="prod-main-file" accept="image/*" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-[#d4af37] file:text-black file:rounded-lg file:border-0 file:px-3 file:py-1">
                     <input type="hidden" id="prod-existing-main">
                 </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-400 mb-1">📸 Fotos Adicionales para la Galería de Detalles (Opcional, varias a la vez)</label>
+                    <input type="file" id="prod-gallery-files" accept="image/*" multiple class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white file:bg-gray-700 file:text-white file:rounded-lg file:border-0 file:px-3 file:py-1">
+                </div>
+
                 <div class="md:col-span-2">
                     <label class="block text-xs text-gray-400 mb-1">Descripción Breve</label>
                     <textarea id="prod-desc" rows="2" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]"></textarea>
@@ -147,7 +154,7 @@
             </div>
         </div>
 
-        <!-- VISTA 4: BANNERS Y BARRA -->
+        <!-- VISTA 4: BANNERS -->
         <div id="banner-tab" class="hidden space-y-6">
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">⚡ Configurar Barra de Avisos Superior</h2>
@@ -163,8 +170,6 @@
                     <button type="submit" class="w-full bg-[#d4af37] text-black font-semibold py-2.5 rounded-xl hover:bg-[#f3e7c4] transition">Actualizar Barra</button>
                 </form>
             </div>
-
-            <!-- Banners Informativos -->
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 id="banner-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">🎨 Crear / Editar Banner Informativo</h2>
                 <form onsubmit="saveBanner(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -233,14 +238,14 @@
 
             if(tabId === 'inventory-tab') loadAdminProducts();
             if(tabId === 'promo-tab') loadAdminPromos();
-            if(tabId === 'banner-tab') { loadAnnouncementConfig(); loadAdminBanners(); }
+            if(tabId === 'banner-tab') loadAnnouncementConfig();
             if(tabId === 'style-tab') loadAdminThemes();
         }
 
         async function loadAdminThemes() {
             const { data } = await db.from('site_themes').select('*');
             const container = document.getElementById('themes-list');
-            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center col-span-2">No hay temas configurados. Asegúrate de haber ejecutado el script SQL de site_themes.</p>'; return; }
+            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center col-span-2">No hay temas configurados.</p>'; return; }
 
             container.innerHTML = data.map(t => `
                 <div class="border rounded-2xl p-5 flex flex-col justify-between space-y-4 ${t.is_active ? 'border-[#d4af37] bg-[#0b0f19]' : 'border-gray-800 bg-[#131b2e]'}" style="border-width: ${t.is_active ? '2px' : '1px'};">
@@ -270,6 +275,12 @@
             else { alert('¡Estilo festivo activado con éxito en toda la web!'); loadAdminThemes(); }
         }
 
+        function checkCategory(val) {
+            const customInput = document.getElementById('prod-cat-custom');
+            if (val === 'otra') { customInput.classList.remove('hidden'); customInput.required = true; customInput.focus(); }
+            else { customInput.classList.add('hidden'); customInput.required = false; customInput.value = ''; }
+        }
+
         async function compressImage(file, maxWidth = 900, quality = 0.75) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -290,10 +301,11 @@
             });
         }
 
+        // GUARDAR PRODUCTO CON GALERÍA DE FOTOS ADICIONALES
         async function saveProduct(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-save');
-            btn.innerText = 'Guardando...'; btn.disabled = true;
+            btn.innerText = 'Guardando imágenes...'; btn.disabled = true;
             try {
                 const id = document.getElementById('prod-id').value;
                 const fileInput = document.getElementById('prod-main-file');
@@ -306,6 +318,18 @@
                     const { data } = db.storage.from('product-images').getPublicUrl(fileName);
                     imageUrl = data.publicUrl;
                 } else if (!id) { throw new Error('La foto de portada principal es obligatoria.'); }
+
+                const galleryInput = document.getElementById('prod-gallery-files');
+                let galleryUrls = [];
+                if (galleryInput.files.length > 0) {
+                    for (let file of galleryInput.files) {
+                        const optimizedGal = await compressImage(file);
+                        const galName = `gal-${Date.now()}-${optimizedGal.name}`;
+                        await db.storage.from('product-images').upload(galName, optimizedGal);
+                        const { data: galData } = db.storage.from('product-images').getPublicUrl(galName);
+                        galleryUrls.push(galData.publicUrl);
+                    }
+                }
 
                 let categoryVal = document.getElementById('prod-cat-select').value;
                 if (categoryVal === 'otra') categoryVal = document.getElementById('prod-cat-custom').value.trim();
@@ -320,6 +344,8 @@
                     image_url: imageUrl,
                     description: document.getElementById('prod-desc').value
                 };
+
+                if (galleryUrls.length > 0) productData.gallery_urls = galleryUrls;
 
                 if (id) await db.from('products').update(productData).eq('id', id);
                 else await db.from('products').insert([productData]);
@@ -340,7 +366,7 @@
                     <div class="flex items-center space-x-4">
                         <img src="${p.image_url}" class="w-14 h-14 object-cover rounded-lg border border-[#d4af37]/30">
                         <div>
-                            <h3 class="font-semibold text-white">${p.name}</h3>
+                            <h3 class="font-semibold text-white">${p.name} <span class="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300 ml-2">${p.category}</span></h3>
                             <p class="text-xs text-gray-400">S/ ${p.price} • Stock: ${p.stock}</p>
                         </div>
                     </div>
@@ -479,64 +505,11 @@
             alert('¡Barra superior actualizada!');
         }
 
-        async function saveBanner(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-banner-save');
-            btn.innerText = 'Guardando...'; btn.disabled = true;
-            try {
-                const id = document.getElementById('banner-id').value;
-                const bannerData = {
-                    badge: document.getElementById('banner-badge').value,
-                    title: document.getElementById('banner-title').value,
-                    subtitle: document.getElementById('banner-subtitle').value,
-                    bg_color: document.getElementById('banner-color').value,
-                    is_active: document.getElementById('banner-active').checked
-                };
-                if (id) await db.from('banners').update(bannerData).eq('id', id);
-                else await db.from('banners').insert([bannerData]);
-                alert('¡Banner guardado!'); resetBannerForm(); loadAdminBanners();
-            } catch (err) { alert('Error: ' + err.message); }
-            btn.innerText = 'Guardar Banner Informativo'; btn.disabled = false;
-        }
-
-        async function loadAdminBanners() {
-            const { data } = await db.from('banners').select('*').order('created_at', { ascending: false });
-            const container = document.getElementById('admin-banners-list');
-            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay banners.</p>'; return; }
-            container.innerHTML = data.map(b => `
-                <div class="flex items-center justify-between bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
-                    <div>
-                        <h4 class="font-bold text-white">${b.title} ${b.is_active ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded ml-2">Activo</span>' : '<span class="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded ml-2">Inactivo</span>'}</h4>
-                        <p class="text-xs text-gray-400">${b.subtitle}</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick='editBanner(${JSON.stringify(b)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded text-xs">Editar</button>
-                        <button onclick="deleteBanner('${b.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded text-xs">Eliminar</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function editBanner(b) {
-            document.getElementById('banner-id').value = b.id;
-            document.getElementById('banner-badge').value = b.badge;
-            document.getElementById('banner-title').value = b.title;
-            document.getElementById('banner-subtitle').value = b.subtitle;
-            document.getElementById('banner-color').value = b.bg_color;
-            document.getElementById('banner-active').checked = b.is_active;
-            document.getElementById('banner-form-title').innerText = '✏️ Editar Banner: ' + b.title;
-            document.getElementById('btn-banner-save').innerText = 'Actualizar Banner';
-            document.getElementById('btn-banner-cancel').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
         function resetForm() { document.querySelector('#form-tab form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); document.getElementById('prod-cat-custom').classList.add('hidden'); }
         function resetPromoForm() { document.querySelector('#promo-tab form').reset(); document.getElementById('promo-id').value = ''; document.getElementById('promo-existing-img').value = ''; document.getElementById('promo-existing-detail-img').value = ''; document.getElementById('promo-form-title').innerText = '📢 Crear / Editar Tarjeta de Oferta'; document.getElementById('btn-promo-save').innerText = 'Guardar Tarjeta de Oferta'; document.getElementById('btn-promo-cancel').classList.add('hidden'); }
-        function resetBannerForm() { document.querySelector('#banner-tab form').reset(); document.getElementById('banner-id').value = ''; document.getElementById('banner-form-title').innerText = '🎨 Crear / Editar Banner Informativo'; document.getElementById('btn-banner-save').innerText = 'Guardar Banner Informativo'; document.getElementById('btn-banner-cancel').classList.add('hidden'); }
 
         async function deleteProduct(id) { if (confirm('¿Eliminar?')) { await db.from('products').delete().eq('id', id); loadAdminProducts(); } }
         async function deletePromo(id) { if (confirm('¿Eliminar?')) { await db.from('promotions').delete().eq('id', id); loadAdminPromos(); } }
-        async function deleteBanner(id) { if (confirm('¿Eliminar?')) { await db.from('banners').delete().eq('id', id); loadAdminBanners(); } }
     </script>
 </body>
 </html>

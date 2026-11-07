@@ -23,12 +23,13 @@
             <a href="index.html" class="bg-[#131b2e] border border-[#d4af37]/40 text-[#d4af37] px-4 py-2 rounded-xl text-sm hover:bg-[#d4af37]/10 transition">Ver Tienda Web ↗</a>
         </div>
 
-        <!-- PESTAÑAS -->
+        <!-- PESTAÑAS (INCLUYENDO ESTILOS) -->
         <div class="flex flex-row gap-2 border-b border-gray-800 pb-4 overflow-x-auto">
             <button onclick="switchTab('form-tab')" id="btn-form-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#d4af37] text-black transition whitespace-nowrap">➕ Nuevo Producto</button>
             <button onclick="switchTab('inventory-tab')" id="btn-inventory-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">📦 Inventario</button>
             <button onclick="switchTab('promo-tab')" id="btn-promo-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">📢 Carrusel de Ofertas</button>
-            <button onclick="switchTab('banner-tab')" id="btn-banner-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">🎨 Banners y Barra Superior</button>
+            <button onclick="switchTab('banner-tab')" id="btn-banner-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">🎨 Banners y Barra</button>
+            <button onclick="switchTab('style-tab')" id="btn-style-tab" class="px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap">🎄 Estilos y Festividades</button>
         </div>
 
         <!-- VISTA 1: NUEVO PRODUCTO -->
@@ -98,7 +99,7 @@
             <div id="admin-products-list" class="space-y-3"><p class="text-gray-400 text-center py-6">Cargando inventario...</p></div>
         </div>
 
-        <!-- VISTA 3: CARRUSEL DE OFERTAS CON PRECIOS -->
+        <!-- VISTA 3: CARRUSEL DE OFERTAS -->
         <div id="promo-tab" class="hidden space-y-6">
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 id="promo-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">📢 Crear / Editar Tarjeta de Oferta</h2>
@@ -114,11 +115,11 @@
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Precio Actual / Oferta (S/)</label>
-                        <input type="number" step="0.01" id="promo-new-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 120.00">
+                        <input type="number" step="0.01" id="promo-new-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Precio Anterior / Tachado S/ (Opcional)</label>
-                        <input type="number" step="0.01" id="promo-old-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]" placeholder="Ej. 240.00">
+                        <input type="number" step="0.01" id="promo-old-price" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
                     </div>
                     <div>
                         <label class="block text-xs text-[#d4af37] font-bold mb-1">📸 Foto de Portada (Carrusel)</label>
@@ -146,7 +147,7 @@
             </div>
         </div>
 
-        <!-- VISTA 4: BANNERS -->
+        <!-- VISTA 4: BANNERS Y BARRA -->
         <div id="banner-tab" class="hidden space-y-6">
             <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
                 <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">⚡ Configurar Barra de Avisos Superior</h2>
@@ -162,43 +163,16 @@
                     <button type="submit" class="w-full bg-[#d4af37] text-black font-semibold py-2.5 rounded-xl hover:bg-[#f3e7c4] transition">Actualizar Barra</button>
                 </form>
             </div>
-            <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
-                <h2 id="banner-form-title" class="text-xl font-serif text-[#f3e7c4] mb-4">🎨 Crear / Editar Banner Informativo</h2>
-                <form onsubmit="saveBanner(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="hidden" id="banner-id">
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">Etiqueta Superior (Badge)</label>
-                        <input type="text" id="banner-badge" value="ESSÊNCIA CLUB" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">Color de Fondo</label>
-                        <select id="banner-color" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                            <option value="#131b2e">Azul Medianoche Lujo (#131b2e)</option>
-                            <option value="#1b2a4a">Azul Elegante (#1b2a4a)</option>
-                            <option value="#221e1d">Negro Carbón (#221e1d)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">Título Principal</label>
-                        <input type="text" id="banner-title" placeholder="Ej. Conoce nuestro club" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">Subtítulo / Descripción</label>
-                        <input type="text" id="banner-subtitle" placeholder="Ej. Muchas promociones y ofertas" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2 text-white outline-none focus:border-[#d4af37]">
-                    </div>
-                    <div class="md:col-span-2 flex items-center space-x-3">
-                        <input type="checkbox" id="banner-active" checked class="w-5 h-5 accent-[#d4af37] rounded">
-                        <label class="text-sm text-white">Activo en la web</label>
-                    </div>
-                    <div class="md:col-span-2 flex space-x-3 pt-2">
-                        <button type="submit" id="btn-banner-save" class="flex-1 bg-[#d4af37] text-black font-semibold py-3 rounded-xl hover:bg-[#f3e7c4] transition">Guardar Banner</button>
-                        <button type="button" id="btn-banner-cancel" onclick="resetBannerForm()" class="hidden bg-gray-700 text-white px-6 py-3 rounded-xl hover:bg-gray-600 transition">Cancelar</button>
-                    </div>
-                </form>
+        </div>
+
+        <!-- VISTA 5: ESTILOS Y FESTIVIDADES (NUEVO) -->
+        <div id="style-tab" class="hidden bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl space-y-6">
+            <div>
+                <h2 class="text-xl font-serif text-[#f3e7c4] mb-1">🎄 Selector de Estilo y Festividad Global</h2>
+                <p class="text-xs text-gray-400">Selecciona el tema estacional que deseas activar en toda la página web principal al instante.</p>
             </div>
-            <div class="bg-[#131b2e] border border-[#d4af37]/30 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-xl font-serif text-[#f3e7c4] mb-4">📋 Banners Informativos Activos</h2>
-                <div id="admin-banners-list" class="space-y-3"><p class="text-gray-400 text-center">Cargando...</p></div>
+            <div id="themes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p class="text-gray-400 text-center col-span-2">Cargando temas festivos...</p>
             </div>
         </div>
     </div>
@@ -210,7 +184,7 @@
         const db = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
         function switchTab(tabId) {
-            ['form-tab', 'inventory-tab', 'promo-tab', 'banner-tab'].forEach(id => {
+            ['form-tab', 'inventory-tab', 'promo-tab', 'banner-tab', 'style-tab'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
                 document.getElementById('btn-' + id).className = 'px-4 py-2.5 rounded-xl font-semibold bg-[#131b2e] text-gray-300 hover:text-white transition whitespace-nowrap';
             });
@@ -219,13 +193,46 @@
 
             if(tabId === 'inventory-tab') loadAdminProducts();
             if(tabId === 'promo-tab') loadAdminPromos();
-            if(tabId === 'banner-tab') { loadAnnouncementConfig(); loadAdminBanners(); }
+            if(tabId === 'banner-tab') loadAnnouncementConfig();
+            if(tabId === 'style-tab') loadAdminThemes();
         }
 
-        function checkCategory(val) {
-            const customInput = document.getElementById('prod-cat-custom');
-            if (val === 'otra') { customInput.classList.remove('hidden'); customInput.required = true; customInput.focus(); }
-            else { customInput.classList.add('hidden'); customInput.required = false; customInput.value = ''; }
+        async function loadAdminThemes() {
+            const { data } = await db.from('site_themes').select('*');
+            const container = document.getElementById('themes-list');
+            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay temas configurados.</p>'; return; }
+
+            container.innerHTML = data.map(t => `
+                <div class="border rounded-2xl p-5 flex flex-col justify-between space-y-4 ${t.is_active ? 'border-[#d4af37] bg-[#0b0f19]' : 'border-gray-800 bg-[#131b2e]'}" style="border-width: ${t.is_active ? '2px' : '1px'};">
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-white text-base">${t.display_name}</h3>
+                            ${t.is_active ? '<span class="bg-[#d4af37] text-black text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Activo Ahora</span>' : ''}
+                        </div>
+                        <p class="text-xs text-gray-400">Título: "${t.hero_title}"</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-6 h-6 rounded-full border border-gray-600" style="background-color: ${t.bg_color};" title="Fondo"></div>
+                        <div class="w-6 h-6 rounded-full border border-gray-600" style="background-color: ${t.surface_color};" title="Superficie"></div>
+                        <div class="w-6 h-6 rounded-full border border-gray-600" style="background-color: ${t.accent_color};" title="Acento"></div>
+                    </div>
+                    <button onclick="activateTheme('${t.theme_key}')" class="w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition ${t.is_active ? 'bg-emerald-600 text-white cursor-default' : 'bg-gray-800 text-gray-300 hover:bg-[#d4af37] hover:text-black'}">
+                        ${t.is_active ? '✓ Tema Seleccionado' : 'Activar este Estilo'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function activateTheme(key) {
+            // Desactivar todos
+            await db.from('site_themes').update({ is_active: false }).neq('theme_key', 'none_dummy');
+            // Activar el seleccionado
+            const { error } = await db.from('site_themes').update({ is_active: true }).eq('theme_key', key);
+            if (error) alert('Error al activar tema');
+            else {
+                alert('¡Estilo festivo activado con éxito en toda la web!');
+                loadAdminThemes();
+            }
         }
 
         async function compressImage(file, maxWidth = 900, quality = 0.75) {
@@ -304,7 +311,7 @@
                     </div>
                     <div class="flex space-x-2">
                         <button onclick='editProduct(${JSON.stringify(p)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-xs">Editar</button>
-                        <button onclick="deleteProduct('${p.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs">Eliminar</button>
+                        <button onclick="deleteProduct('${p.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded text-xs">Eliminar</button>
                     </div>
                 </div>
             `).join('');
@@ -437,73 +444,17 @@
             alert('¡Barra superior actualizada!');
         }
 
-        async function saveBanner(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btn-banner-save');
-    btn.innerText = 'Guardando...'; btn.disabled = true;
-    try {
-        const id = document.getElementById('banner-id').value;
-        const bannerData = {
-            badge: document.getElementById('banner-badge').value,
-            title: document.getElementById('banner-title').value,
-            subtitle: document.getElementById('banner-subtitle').value,
-            bg_color: document.getElementById('banner-color').value,
-            is_active: document.getElementById('banner-active').checked
-        };
-
-        if (id) {
-            await db.from('banners').update(bannerData).eq('id', id);
-        } else {
-            await db.from('banners').insert([bannerData]);
-        }
-
-        alert('¡Banner guardado con éxito!');
-        resetBannerForm();
-        loadAdminBanners();
-    } catch (err) {
-        alert('Error: ' + err.message);
-    }
-    btn.innerText = 'Guardar Banner'; btn.disabled = false;
-}
-
-        async function loadAdminBanners() {
-            const { data } = await db.from('banners').select('*').order('created_at', { ascending: false });
-            const container = document.getElementById('admin-banners-list');
-            if (!data || !data.length) { container.innerHTML = '<p class="text-gray-400 text-center">No hay banners.</p>'; return; }
-            container.innerHTML = data.map(b => `
-                <div class="flex items-center justify-between bg-[#0b0f19] p-3 rounded-xl border border-gray-800">
-                    <div>
-                        <h4 class="font-bold text-white">${b.title} ${b.is_active ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded ml-2">Activo</span>' : '<span class="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded ml-2">Inactivo</span>'}</h4>
-                        <p class="text-xs text-gray-400">${b.subtitle}</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick='editBanner(${JSON.stringify(b)})' class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded text-xs">Editar</button>
-                        <button onclick="deleteBanner('${b.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded text-xs">Eliminar</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function editBanner(b) {
-            document.getElementById('banner-id').value = b.id;
-            document.getElementById('banner-badge').value = b.badge;
-            document.getElementById('banner-title').value = b.title;
-            document.getElementById('banner-subtitle').value = b.subtitle;
-            document.getElementById('banner-color').value = b.bg_color;
-            document.getElementById('banner-active').checked = b.is_active;
-            document.getElementById('banner-form-title').innerText = '✏️ Editar Banner: ' + b.title;
-            document.getElementById('btn-banner-save').innerText = 'Actualizar Banner';
-            document.getElementById('btn-banner-cancel').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function checkCategory(val) {
+            const customInput = document.getElementById('prod-cat-custom');
+            if (val === 'otra') { customInput.classList.remove('hidden'); customInput.required = true; customInput.focus(); }
+            else { customInput.classList.add('hidden'); customInput.required = false; customInput.value = ''; }
         }
 
         function resetForm() { document.querySelector('#form-tab form').reset(); document.getElementById('prod-id').value = ''; document.getElementById('prod-existing-main').value = ''; document.getElementById('form-title').innerText = '🛍️ Registrar Producto o Artículo'; document.getElementById('btn-save').innerText = 'Guardar y Publicar en la Web'; document.getElementById('btn-cancel').classList.add('hidden'); document.getElementById('prod-cat-custom').classList.add('hidden'); }
         function resetPromoForm() { document.querySelector('#promo-tab form').reset(); document.getElementById('promo-id').value = ''; document.getElementById('promo-existing-img').value = ''; document.getElementById('promo-existing-detail-img').value = ''; document.getElementById('promo-form-title').innerText = '📢 Crear / Editar Tarjeta de Oferta'; document.getElementById('btn-promo-save').innerText = 'Guardar Tarjeta de Oferta'; document.getElementById('btn-promo-cancel').classList.add('hidden'); }
-        function resetBannerForm() { document.querySelector('#banner-tab form').reset(); document.getElementById('banner-id').value = ''; document.getElementById('banner-form-title').innerText = '🎨 Crear / Editar Banner Informativo'; document.getElementById('btn-banner-save').innerText = 'Guardar Banner Informativo'; document.getElementById('btn-banner-cancel').classList.add('hidden'); }
 
         async function deleteProduct(id) { if (confirm('¿Eliminar?')) { await db.from('products').delete().eq('id', id); loadAdminProducts(); } }
         async function deletePromo(id) { if (confirm('¿Eliminar?')) { await db.from('promotions').delete().eq('id', id); loadAdminPromos(); } }
-        async function deleteBanner(id) { if (confirm('¿Eliminar?')) { await db.from('banners').delete().eq('id', id); loadAdminBanners(); } }
     </script>
 </body>
 </html>

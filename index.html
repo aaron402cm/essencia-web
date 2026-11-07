@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Essência Perfumería | Tu belleza, nuestro compromiso</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,8 +23,6 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #ffffff; color: #111; overflow-x: hidden; }
         .font-serif { font-family: 'Playfair Display', serif; }
-        
-        /* Ocultar barra de desplazamiento en el carrusel de ofertas pero permitir scroll fluido */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -47,17 +44,15 @@
         </video>
     </div>
 
-    <!-- HEADER SUPERIOR CON BUSCADOR -->
+    <!-- HEADER -->
     <header class="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
         <div class="flex items-center space-x-3">
             <span class="text-2xl font-serif text-black tracking-wider uppercase font-bold">essência</span>
             <span class="text-xs uppercase tracking-widest text-gold-dark border-l border-gray-300 pl-3 hidden sm:inline">Perfumería</span>
         </div>
-
         <div class="w-full md:w-96 relative">
             <input type="text" id="search-input" oninput="handleSearch(event)" placeholder="¿Qué estás buscando? (Perfume, ropa...)" class="w-full bg-gray-100 border border-gray-300 rounded-full py-2 px-5 text-sm text-black placeholder-gray-500 focus:outline-none focus:border-black transition">
         </div>
-
         <div class="flex items-center space-x-4">
             <button onclick="toggleCart()" class="relative bg-black text-white px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider flex items-center space-x-2 hover:bg-gold hover:text-black transition">
                 <span>🛒 Mi Pedido</span>
@@ -66,7 +61,7 @@
         </div>
     </header>
 
-    <!-- CARRUSEL DE TARJETAS DE PROMOCIONES (ESTILO EJEMPLO) -->
+    <!-- CARRUSEL DE TARJETAS DE OFERTA -->
     <section class="relative max-w-7xl mx-auto px-4 py-8 w-full">
         <div class="flex justify-between items-center mb-4 px-2">
             <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Promociones Exclusivas</h2>
@@ -75,22 +70,20 @@
                 <button onclick="scrollSlider(1)" class="bg-gray-100 hover:bg-black hover:text-white text-black p-2.5 rounded-full shadow transition">❯</button>
             </div>
         </div>
-
         <div id="promo-cards-container" class="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth px-2 pb-4">
             <div class="text-gray-400 py-10 text-center w-full">Cargando promociones...</div>
         </div>
     </section>
 
-    <!-- BANNER DE ANUNCIOS PROFESIONALES -->
+    <!-- BANNERS INFORMATIVOS -->
     <section id="banners-container" class="max-w-7xl mx-auto px-4 py-4 w-full grid grid-cols-1 md:grid-cols-2 gap-6"></section>
 
-    <!-- FILTRO DE MARCAS Y CATÁLOGO -->
+    <!-- CATÁLOGO -->
     <main class="max-w-7xl mx-auto px-6 py-8 flex-grow w-full">
         <div class="text-center mb-8">
             <h2 class="text-2xl font-serif font-bold text-gray-900">Catálogo General</h2>
             <p class="text-sm text-gray-500 mt-1">Explora todos nuestros productos o filtra por marca</p>
         </div>
-
         <div class="flex flex-wrap justify-center gap-3 mb-10" id="brand-filters">
             <button onclick="filterByBrand('TODAS')" class="px-6 py-2.5 rounded-full text-sm font-medium bg-black text-white transition brand-btn" data-brand="TODAS">Todas</button>
             <button onclick="filterByBrand('Natura')" class="px-6 py-2.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-black hover:text-white transition brand-btn" data-brand="Natura">Natura</button>
@@ -99,13 +92,12 @@
             <button onclick="filterByBrand('Cyzone')" class="px-6 py-2.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-black hover:text-white transition brand-btn" data-brand="Cyzone">Cyzone</button>
             <button onclick="filterByBrand('Yanbal')" class="px-6 py-2.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-black hover:text-white transition brand-btn" data-brand="Yanbal">Yanbal</button>
         </div>
-
         <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <div class="col-span-full text-center py-20 text-gray-400">Cargando catálogo...</div>
         </div>
     </main>
 
-    <!-- MODAL DE DETALLES DEL PRODUCTO -->
+    <!-- MODAL GENERAL (PRODUCTOS Y PROMOCIONES) -->
     <div id="product-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center transition">✕</button>
@@ -171,25 +163,46 @@
 
             container.innerHTML = data.map(p => `
                 <div class="min-w-[260px] md:min-w-[280px] flex-shrink-0 bg-gray-50 rounded-3xl overflow-hidden shadow-md border border-gray-200 flex flex-col justify-between group">
-                    <div class="p-6 text-center space-y-2">
-                        <h3 class="font-serif text-xl font-bold text-gray-900 tracking-tight">${p.title}</h3>
+                    <div class="p-6 text-center space-y-1">
+                        <h3 class="font-serif text-lg font-bold text-gray-900 tracking-tight">${p.title}</h3>
                         <p class="text-xs text-gray-600 font-medium">${p.subtitle}</p>
                     </div>
-                    <div class="h-56 overflow-hidden px-4 flex items-center justify-center bg-white/50">
+                    <div class="h-48 overflow-hidden px-4 flex items-center justify-center bg-white/50">
                         <img src="${p.image_url}" class="max-h-full object-contain group-hover:scale-105 transition duration-300">
                     </div>
                     <div class="mt-4">
-                        <a href="#products-grid" class="block w-full bg-[#d8e2dc] hover:bg-black hover:text-white text-gray-900 text-center py-3 text-xs font-bold uppercase tracking-wider transition">
-                            ${p.link_text || 'VER MÁS'} ▸
-                        </a>
+                        <button onclick='openPromoModal(${JSON.stringify(p)})' class="w-full bg-[#d8e2dc] hover:bg-black hover:text-white text-gray-900 text-center py-3 text-xs font-bold uppercase tracking-wider transition">
+                            VER MÁS ▸
+                        </button>
                     </div>
                 </div>
             `).join('');
         }
 
         function scrollSlider(direction) {
-            const container = document.getElementById('promo-cards-container');
-            container.scrollBy({ left: direction * 300, behavior: 'smooth' });
+            document.getElementById('promo-cards-container').scrollBy({ left: direction * 300, behavior: 'smooth' });
+        }
+
+        function openPromoModal(p) {
+            document.getElementById('modal-content').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="h-80 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center p-4">
+                        <img src="${p.detail_image_url || p.image_url}" class="max-h-full object-contain">
+                    </div>
+                    <div class="flex flex-col justify-between space-y-4">
+                        <div>
+                            <span class="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-bold">OFERTA ESPECIAL</span>
+                            <h2 class="text-2xl font-serif font-bold text-gray-900 mt-2">${p.title}</h2>
+                            <p class="text-sm font-semibold text-gray-700">${p.subtitle}</p>
+                            <p class="text-sm text-gray-600 mt-3 leading-relaxed">${p.description || 'Sin descripción adicional para esta promoción.'}</p>
+                        </div>
+                        <button onclick="closeModal()" class="w-full bg-black text-white font-semibold py-3.5 rounded-2xl transition shadow-lg hover:bg-[#d4af37] hover:text-black">
+                            Cerrar Detalles
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('product-modal').classList.remove('hidden');
         }
 
         async function loadBanners() {
@@ -254,8 +267,8 @@
             document.getElementById('modal-content').innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <div class="h-80 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100">
-                            <img id="modal-main-img" src="${p.image_url}" class="w-full h-full object-cover">
+                        <div class="h-80 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center p-2">
+                            <img id="modal-main-img" src="${p.image_url}" class="max-h-full object-contain">
                         </div>
                         ${galleryHtml}
                     </div>

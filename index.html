@@ -26,17 +26,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Animación de desplazamiento continuo para la barra superior */
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 22s linear infinite;
-        }
-
         #welcome-preloader {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #030712;
             z-index: 99999; display: flex; justify-content: center; align-items: center;
@@ -55,9 +44,9 @@
         </video>
     </div>
 
-    <!-- BARRA DE AVISOS SUPERIOR CON MOVIMIENTO -->
-    <div id="announcement-wrapper" class="hidden bg-black text-gold text-xs font-semibold py-2.5 overflow-hidden whitespace-nowrap shadow-inner">
-        <div id="announcement-bar" class="animate-marquee"></div>
+    <!-- BARRA DE AVISOS SUPERIOR (Limpia y Estática o con movimiento único) -->
+    <div id="announcement-wrapper" class="hidden bg-black text-gold text-xs font-medium py-2.5 px-4 text-center tracking-wider uppercase shadow-inner">
+        <span id="announcement-bar"></span>
     </div>
 
     <!-- HEADER -->
@@ -178,7 +167,7 @@
             const wrapper = document.getElementById('announcement-wrapper');
             const bar = document.getElementById('announcement-bar');
             if (data && data.is_active && data.message) {
-                bar.innerText = data.message + "   •   " + data.message + "   •   " + data.message;
+                bar.innerText = data.message;
                 wrapper.classList.remove('hidden');
             } else {
                 wrapper.classList.add('hidden');
@@ -315,7 +304,7 @@
                         <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                             <div>
                                 <span class="text-lg font-bold text-black">S/ ${Number(p.price).toFixed(2)}</span>
-                                ${p.old_price ? `<span class="text-xs text-gray-400 line-through ml-1">S/ ${p.old_price}</span>` : ''}
+                                ${p.old_price ? `<span class="text-xs text-gray-400 line-through ml-1">${p.old_price}</span>` : ''}
                             </div>
                             <button onclick="addToCart('${p.id}')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-[#d4af37] hover:text-black transition shadow">Agregar +</button>
                         </div>

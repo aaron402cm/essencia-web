@@ -33,6 +33,16 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 22s linear infinite;
+        }
+
         #welcome-preloader {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #030712;
             z-index: 99999; display: flex; justify-content: center; align-items: center;
@@ -51,7 +61,7 @@
         </video>
     </div>
 
-    <!-- BARRA DE AVISOS -->
+    <!-- BARRA DE AVISOS SUPERIOR -->
     <div id="announcement-wrapper" class="hidden bg-black text-gold text-xs font-medium py-2.5 px-4 text-center tracking-wider uppercase shadow-inner">
         <span id="announcement-bar"></span>
     </div>
@@ -73,18 +83,25 @@
         </div>
     </header>
 
-    <!-- SECCIÓN HERO DINÁMICA SEGÚN EL TEMA ACTIVO -->
-    <section id="hero-banner" class="py-16 px-6 text-center transition-all duration-500" style="background-color: var(--theme-surface); color: var(--theme-text);">
-        <div class="max-w-3xl mx-auto space-y-4">
-            <h1 id="dynamic-hero-title" class="text-3xl md:text-5xl font-serif font-bold">"Tu belleza, nuestro compromiso"</h1>
-            <p id="dynamic-hero-subtitle" class="text-sm md:text-base opacity-80 max-w-xl mx-auto">Encuentra tus marcas favoritas con asesoría personalizada.</p>
+    <!-- BANNER HORIZONTAL DINÁMICO DE PORTADA -->
+    <section class="relative w-full bg-gray-900 overflow-hidden shadow-lg">
+        <div id="hero-banner-container" class="relative w-full h-[280px] md:h-[400px] flex items-center justify-center text-center">
+            <!-- Imagen de fondo dinámica -->
+            <img id="hero-banner-img" src="" alt="Portada Festiva" class="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-700">
+            <div class="absolute inset-0 bg-black/40"></div> <!-- Capa oscura para legibilidad -->
+            
+            <!-- Contenido del Banner -->
+            <div class="relative z-10 max-w-3xl mx-auto px-6 text-white space-y-3">
+                <h1 id="dynamic-hero-title" class="text-3xl md:text-5xl font-serif font-bold tracking-wide drop-shadow-md">"Tu belleza, nuestro compromiso"</h1>
+                <p id="dynamic-hero-subtitle" class="text-sm md:text-base text-gray-200 font-medium max-w-xl mx-auto drop-shadow">Encuentra tus marcas favoritas con asesoría personalizada.</p>
+            </div>
         </div>
     </section>
 
     <!-- CARRUSEL DE OFERTAS -->
     <section class="relative max-w-7xl mx-auto px-4 py-8 w-full">
         <div class="flex justify-between items-center mb-4 px-2">
-            <h2 class="text-xl font-serif font-bold tracking-wide">Promociones Exclusivas</h2>
+            <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Promociones Exclusivas</h2>
             <div class="flex space-x-2">
                 <button onclick="scrollSlider(-1)" class="bg-gray-100 hover:bg-black hover:text-white text-black p-2.5 rounded-full shadow transition">❮</button>
                 <button onclick="scrollSlider(1)" class="bg-gray-100 hover:bg-black hover:text-white text-black p-2.5 rounded-full shadow transition">❯</button>
@@ -101,8 +118,8 @@
     <!-- CATÁLOGO -->
     <main class="max-w-7xl mx-auto px-6 py-8 flex-grow w-full">
         <div class="text-center mb-8">
-            <h2 class="text-2xl font-serif font-bold">Catálogo General</h2>
-            <p class="text-sm opacity-70 mt-1">Explora todos nuestros productos o filtra por marca</p>
+            <h2 class="text-2xl font-serif font-bold text-gray-900">Catálogo General</h2>
+            <p class="text-sm text-gray-500 mt-1">Explora todos nuestros productos o filtra por marca</p>
         </div>
         <div class="flex flex-wrap justify-center gap-3 mb-10" id="brand-filters">
             <button onclick="filterByBrand('TODAS')" class="px-6 py-2.5 rounded-full text-sm font-medium bg-black text-white transition brand-btn" data-brand="TODAS">Todas</button>
@@ -119,14 +136,14 @@
 
     <!-- MODAL -->
     <div id="product-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col text-black">
+        <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center transition">✕</button>
             <div id="modal-content" class="p-6 md:p-8 overflow-y-auto space-y-6"></div>
         </div>
     </div>
 
     <!-- CARRITO MODAL -->
-    <div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-gray-200 shadow-2xl p-6 transform translate-x-full transition-transform duration-300 flex flex-col justify-between text-black">
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-gray-200 shadow-2xl p-6 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
         <div>
             <div class="flex justify-between items-center border-b border-gray-200 pb-4">
                 <h2 class="text-xl font-serif text-black font-bold">Tu Lista de Pedido</h2>
@@ -188,6 +205,10 @@
 
                 document.getElementById('dynamic-hero-title').innerText = `"${data.hero_title}"`;
                 document.getElementById('dynamic-hero-subtitle').innerText = data.hero_subtitle;
+
+                if (data.banner_image_url) {
+                    document.getElementById('hero-banner-img').src = data.banner_image_url;
+                }
             }
         }
 
@@ -333,7 +354,7 @@
                         <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                             <div>
                                 <span class="text-lg font-bold text-black">S/ ${Number(p.price).toFixed(2)}</span>
-                                ${p.old_price ? `<span class="text-xs text-gray-400 line-through ml-1">S/ ${p.old_price}</span>` : ''}
+                                ${p.old_price ? `<span class="text-xs text-gray-400 line-through ml-1">${p.old_price}</span>` : ''}
                             </div>
                             <button onclick="addToCart('${p.id}')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-[#d4af37] hover:text-black transition shadow">Agregar +</button>
                         </div>
@@ -370,7 +391,7 @@
                             <h2 class="text-2xl font-serif font-bold text-gray-900 mt-2">${p.name}</h2>
                             <div class="flex items-baseline space-x-3 my-2">
                                 <span class="text-2xl font-bold text-black">S/ ${Number(p.price).toFixed(2)}</span>
-                                ${p.old_price ? `<span class="text-gray-400 line-through text-lg">S/ ${p.old_price}</span>` : ''}
+                                ${p.old_price ? `<span class="text-gray-400 line-through text-lg">${p.old_price}</span>` : ''}
                             </div>
                             <p class="text-sm text-gray-600 mt-3 leading-relaxed">${p.description || 'Sin descripción detallada.'}</p>
                             <div class="mt-4 space-y-2 text-xs text-gray-500">

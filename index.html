@@ -44,6 +44,11 @@
         </video>
     </div>
 
+    <!-- BARRA DE AVISOS SUPERIOR EDITABLE -->
+    <div id="announcement-bar" class="hidden bg-black text-gold text-xs font-medium py-2 px-4 text-center tracking-wider uppercase">
+        <!-- Texto dinámico desde Supabase -->
+    </div>
+
     <!-- HEADER -->
     <header class="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
         <div class="flex items-center space-x-3">
@@ -75,7 +80,7 @@
         </div>
     </section>
 
-    <!-- BANNERS -->
+    <!-- BANNERS INFORMATIVOS (SI ESTÁN ACTIVOS) -->
     <section id="banners-container" class="max-w-7xl mx-auto px-4 py-4 w-full grid grid-cols-1 md:grid-cols-2 gap-6"></section>
 
     <!-- CATÁLOGO -->
@@ -151,9 +156,21 @@
         let products = [], promotions = [], cart = [], currentBrand = 'TODAS';
 
         async function initStore() {
+            await loadAnnouncementBar();
             await loadPromotions();
             await loadBanners();
             await loadProducts();
+        }
+
+        async function loadAnnouncementBar() {
+            const { data } = await db.from('announcement_bar').select('*').limit(1).single();
+            const bar = document.getElementById('announcement-bar');
+            if (data && data.is_active && data.message) {
+                bar.innerText = data.message;
+                bar.classList.remove('hidden');
+            } else {
+                bar.classList.add('hidden');
+            }
         }
 
         async function loadPromotions() {
@@ -186,7 +203,6 @@
         function openPromoModal(p) {
             let discountBadge = '';
             let priceHtml = '';
-
             if (p.new_price && p.new_price > 0) {
                 if (p.old_price && p.old_price > p.new_price) {
                     const diff = p.old_price - p.new_price;
@@ -202,23 +218,17 @@
                 `;
             }
 
-            // Recolectar ambas imágenes de la promoción (portada y detalle)
             let promoImages = [p.image_url];
-            if (p.detail_image_url && p.detail_image_url !== p.image_url) {
-                promoImages.push(p.detail_image_url);
-            }
+            if (p.detail_image_url && p.detail_image_url !== p.image_url) promoImages.push(p.detail_image_url);
 
-            let promoThumbnails = '';
-            if (promoImages.length > 1) {
-                promoThumbnails = `
-                    <div class="flex gap-2 overflow-x-auto pb-2 w-full justify-center mt-3">
-                        ${promoImages.map((url, index) => `
-                            <img src="${url}" onclick="changeMainImage('${url}', this)" 
-                                class="w-14 h-14 object-cover rounded-xl border-2 ${index === 0 ? 'border-black' : 'border-gray-200'} cursor-pointer flex-shrink-0 hover:border-black transition thumb-img">
-                        `).join('')}
-                    </div>
-                `;
-            }
+            let promoThumbnails = promoImages.length > 1 ? `
+                <div class="flex gap-2 overflow-x-auto pb-2 w-full justify-center mt-3">
+                    ${promoImages.map((url, index) => `
+                        <img src="${url}" onclick="changeMainImage('${url}', this)" 
+                            class="w-14 h-14 object-cover rounded-xl border-2 ${index === 0 ? 'border-black' : 'border-gray-200'} cursor-pointer flex-shrink-0 hover:border-black transition thumb-img">
+                    `).join('')}
+                </div>
+            ` : '';
 
             document.getElementById('modal-content').innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -234,7 +244,7 @@
                             <h2 class="text-2xl font-serif font-bold text-gray-900 mt-2">${p.title}</h2>
                             <p class="text-sm font-semibold text-gray-700">${p.subtitle}</p>
                             ${priceHtml}
-                            <p class="text-sm text-gray-600 mt-3 leading-relaxed">${p.description || 'Sin descripción adicional para esta promoción.'}</p>
+                            <p class="text-sm text-gray-600 mt-3 leading-relaxed">${p.description || 'Sin descripción adicional.'}</p>
                         </div>
                         <button onclick="addPromoToCart(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="w-full bg-black hover:bg-[#d4af37] text-white hover:text-black font-semibold py-3.5 rounded-2xl transition shadow-lg flex items-center justify-center space-x-2">
                             <span>🛒 Agregar al Pedido</span>
@@ -249,14 +259,9 @@
             const name = `${p.title} - ${p.subtitle}`;
             const price = p.new_price ? parseFloat(p.new_price) : 0.00;
             const existing = cart.find(item => item.name === name);
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                cart.push({ id: 'promo-' + p.id, name: name, brand: 'Promoción', price: price, image_url: p.image_url, quantity: 1, isPromo: true });
-            }
-            updateCartUI();
-            closeModal();
-            toggleCart();
+            if (existing) existing.quantity += 1;
+            else cart.push({ id: 'promo-' + p.id, name: name, brand: 'Promoción', price: price, image_url: p.image_url, quantity: 1, isPromo: true });
+            updateCartUI(); closeModal(); toggleCart();
         }
 
         async function loadBanners() {
@@ -282,25 +287,34 @@
         function renderProducts(items) {
             const grid = document.getElementById('products-grid');
             if (!items.length) { grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">No se encontraron productos.</p>'; return; }
-            grid.innerHTML = items.map(p => `
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl transition group">
-                    <div onclick="openModal('${p.id}')" class="cursor-pointer">
-                        <div class="relative h-52 rounded-xl overflow-hidden mb-4 bg-gray-50">
-                            <img src="${p.image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                            <span class="absolute top-2 right-2 bg-white/90 text-black text-xs font-bold px-2.5 py-1 rounded-full shadow">${p.brand}</span>
+            grid.innerHTML = items.map(p => {
+                // Etiqueta profesional de estado/stock si existe
+                let badgeHtml = '';
+                if (p.badge_label) {
+                    badgeHtml = `<span class="absolute top-2 left-2 bg-black text-[#d4af37] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow">${p.badge_label}</span>`;
+                }
+
+                return `
+                    <div class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl transition group">
+                        <div onclick="openModal('${p.id}')" class="cursor-pointer">
+                            <div class="relative h-52 rounded-xl overflow-hidden mb-4 bg-gray-50">
+                                <img src="${p.image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                ${badgeHtml}
+                                <span class="absolute top-2 right-2 bg-white/90 text-black text-xs font-bold px-2.5 py-1 rounded-full shadow">${p.brand}</span>
+                            </div>
+                            <h3 class="font-serif text-base font-bold text-gray-900 mb-1">${p.name}</h3>
+                            <p class="text-xs text-gray-500 mb-3 line-clamp-2">${p.description || ''}</p>
                         </div>
-                        <h3 class="font-serif text-base font-bold text-gray-900 mb-1">${p.name}</h3>
-                        <p class="text-xs text-gray-500 mb-3 line-clamp-2">${p.description || ''}</p>
-                    </div>
-                    <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-                        <div>
-                            <span class="text-lg font-bold text-black">S/ ${Number(p.price).toFixed(2)}</span>
-                            ${p.old_price ? `<span class="text-xs text-gray-400 line-through ml-1">S/ ${p.old_price}</span>` : ''}
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                            <div>
+                                <span class="text-lg font-bold text-black">S/ ${Number(p.price).toFixed(2)}</span>
+                                ${p.old_price ? `<span class="text-xs text-gray-400 line-through ml-1">S/ ${p.old_price}</span>` : ''}
+                            </div>
+                            <button onclick="addToCart('${p.id}')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-[#d4af37] hover:text-black transition shadow">Agregar +</button>
                         </div>
-                        <button onclick="addToCart('${p.id}')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-[#d4af37] hover:text-black transition shadow">Agregar +</button>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function openModal(id) {
@@ -309,17 +323,15 @@
             let allImages = [p.image_url];
             if (p.gallery_urls && p.gallery_urls.length > 0) allImages = allImages.concat(p.gallery_urls);
 
-            let thumbnailsHtml = '';
-            if (allImages.length > 1) {
-                thumbnailsHtml = `
-                    <div class="flex gap-2 overflow-x-auto pb-2 w-full justify-center">
-                        ${allImages.map((url, index) => `
-                            <img src="${url}" onclick="changeMainImage('${url}', this)" 
-                                class="w-14 h-14 object-cover rounded-xl border-2 ${index === 0 ? 'border-black' : 'border-gray-200'} cursor-pointer flex-shrink-0 hover:border-black transition thumb-img">
-                        `).join('')}
-                    </div>
-                `;
-            }
+            let thumbnailsHtml = allImages.length > 1 ? `
+                <div class="flex gap-2 overflow-x-auto pb-2 w-full justify-center">
+                    ${allImages.map((url, index) => `
+                        <img src="${url}" onclick="changeMainImage('${url}', this)" 
+                            class="w-14 h-14 object-cover rounded-xl border-2 ${index === 0 ? 'border-black' : 'border-gray-200'} cursor-pointer flex-shrink-0 hover:border-black transition thumb-img">
+                    `).join('')}
+                </div>
+            ` : '';
+
             document.getElementById('modal-content').innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex flex-col items-center space-y-3">

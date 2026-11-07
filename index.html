@@ -184,11 +184,10 @@
         }
 
         function openPromoModal(p) {
-            let discountHtml = '';
+            let discountBadge = '';
             let priceHtml = '';
 
             if (p.new_price && p.new_price > 0) {
-                let discountBadge = '';
                 if (p.old_price && p.old_price > p.new_price) {
                     const diff = p.old_price - p.new_price;
                     const percent = Math.round((diff / p.old_price) * 100);
@@ -203,12 +202,31 @@
                 `;
             }
 
+            // Recolectar ambas imágenes de la promoción (portada y detalle)
+            let promoImages = [p.image_url];
+            if (p.detail_image_url && p.detail_image_url !== p.image_url) {
+                promoImages.push(p.detail_image_url);
+            }
+
+            let promoThumbnails = '';
+            if (promoImages.length > 1) {
+                promoThumbnails = `
+                    <div class="flex gap-2 overflow-x-auto pb-2 w-full justify-center mt-3">
+                        ${promoImages.map((url, index) => `
+                            <img src="${url}" onclick="changeMainImage('${url}', this)" 
+                                class="w-14 h-14 object-cover rounded-xl border-2 ${index === 0 ? 'border-black' : 'border-gray-200'} cursor-pointer flex-shrink-0 hover:border-black transition thumb-img">
+                        `).join('')}
+                    </div>
+                `;
+            }
+
             document.getElementById('modal-content').innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex flex-col items-center space-y-3">
+                    <div class="flex flex-col items-center space-y-2">
                         <div class="w-full h-72 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center p-2">
-                            <img id="modal-main-img" src="${p.detail_image_url || p.image_url}" class="max-h-full object-contain">
+                            <img id="modal-main-img" src="${p.image_url}" class="max-h-full object-contain transition duration-300">
                         </div>
+                        ${promoThumbnails}
                     </div>
                     <div class="flex flex-col justify-between space-y-4">
                         <div>
@@ -288,12 +306,8 @@
         function openModal(id) {
             const p = products.find(prod => prod.id === id);
             if (!p) return;
-
-            // Recolectar todas las imágenes (portada + galería)
             let allImages = [p.image_url];
-            if (p.gallery_urls && p.gallery_urls.length > 0) {
-                allImages = allImages.concat(p.gallery_urls);
-            }
+            if (p.gallery_urls && p.gallery_urls.length > 0) allImages = allImages.concat(p.gallery_urls);
 
             let thumbnailsHtml = '';
             if (allImages.length > 1) {
@@ -306,12 +320,11 @@
                     </div>
                 `;
             }
-
             document.getElementById('modal-content').innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex flex-col items-center space-y-3">
                         <div class="w-full h-72 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center p-2">
-                            <img id="modal-main-img" src="${p.image_url}" class="max-h-full object-contain transition duration-300">
+                            <img id="modal-main-img" src="${p.image_url}" class="max-h-full object-contain">
                         </div>
                         ${thumbnailsHtml}
                     </div>
@@ -330,8 +343,8 @@
                                 ${p.colors ? `<p>🎨 <strong>Colores:</strong> ${p.colors}</p>` : ''}
                             </div>
                         </div>
-                        <button onclick="addToCart('${p.id}'); closeModal();" class="w-full bg-black hover:bg-[#d4af37] text-white hover:text-black font-semibold py-3.5 rounded-2xl transition shadow-lg flex items-center justify-center space-x-2">
-                            <span>🛒 Agregar al Pedido</span>
+                        <button onclick="addToCart('${p.id}'); closeModal();" class="w-full bg-black hover:bg-[#d4af37] text-white hover:text-black font-semibold py-3.5 rounded-2xl transition shadow-lg">
+                            🛒 Agregar al Pedido
                         </button>
                     </div>
                 </div>

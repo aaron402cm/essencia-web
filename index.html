@@ -97,7 +97,7 @@
         </div>
     </main>
 
-    <!-- MODAL GENERAL (PRODUCTOS Y PROMOCIONES) -->
+    <!-- MODAL GENERAL -->
     <div id="product-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center transition">✕</button>
@@ -196,13 +196,26 @@
                             <p class="text-sm font-semibold text-gray-700">${p.subtitle}</p>
                             <p class="text-sm text-gray-600 mt-3 leading-relaxed">${p.description || 'Sin descripción adicional para esta promoción.'}</p>
                         </div>
-                        <button onclick="closeModal()" class="w-full bg-black text-white font-semibold py-3.5 rounded-2xl transition shadow-lg hover:bg-[#d4af37] hover:text-black">
-                            Cerrar Detalles
+                        <button onclick="addPromoToCart('${p.title.replace(/'/g, "\\'")}', '${p.subtitle.replace(/'/g, "\\'")}', '${p.image_url}')" class="w-full bg-black hover:bg-[#d4af37] text-white hover:text-black font-semibold py-3.5 rounded-2xl transition shadow-lg">
+                            🛒 Agregar al Pedido
                         </button>
                     </div>
                 </div>
             `;
             document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function addPromoToCart(title, subtitle, imgUrl) {
+            const name = `${title} - ${subtitle}`;
+            const existing = cart.find(item => item.name === name);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id: 'promo-' + Date.now(), name: name, brand: 'Promoción', price: 0.00, image_url: imgUrl, quantity: 1, isPromo: true });
+            }
+            updateCartUI();
+            closeModal();
+            toggleCart();
         }
 
         async function loadBanners() {
@@ -337,7 +350,7 @@
                     <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
                         <div>
                             <h4 class="text-sm font-semibold text-gray-900">${item.name}</h4>
-                            <p class="text-xs text-[#d4af37]">S/ ${item.price} x ${item.quantity}</p>
+                            <p class="text-xs text-[#d4af37]">${item.price > 0 ? 'S/ ' + item.price + ' x ' + item.quantity : 'Promoción Especial'}</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <button onclick="changeQty('${item.id}', -1)" class="px-2 bg-gray-200 rounded text-black">-</button>
@@ -359,14 +372,15 @@
 
         function checkoutWhatsApp() {
             if (!cart.length) { alert('Agrega al menos un producto a tu pedido.'); return; }
-            const phone = '51913550024';
+            const phone = '51923934517'; // Número actualizado de WhatsApp
             let message = 'Hola *Essência Perfumería*, deseo realizar el siguiente pedido:\n\n';
             let total = 0;
             cart.forEach((item, index) => {
                 const sub = item.price * item.quantity; total += sub;
-                message += `${index + 1}. *${item.name}* (${item.brand}) - Cant: ${item.quantity} - S/ ${sub.toFixed(2)}\n`;
+                message += `${index + 1}. *${item.name}* - Cant: ${item.quantity} ${item.price > 0 ? '- S/ ' + sub.toFixed(2) : ''}\n`;
             });
-            message += `\n*Total a pagar: S/ ${total.toFixed(2)}*\n\n¡Quedo a la espera de la confirmación!`;
+            message += total > 0 ? `\n*Total a pagar: S/ ${total.toFixed(2)}*\n\n` : '\n';
+            message += '¡Quedo a la espera de la confirmación!';
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
         }
 
